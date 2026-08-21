@@ -3,7 +3,7 @@
   "info": {
     "title": "Negirau Public API",
     "description": "Read-only, anonymous, CORS-open API for building third-party viewers over Negirau data. Counts are exposed as display values — exact up to 100, \"100+\" beyond — and never as rankings.",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "termsOfService": "https://negirau.com/terms"
   },
   "servers": [
