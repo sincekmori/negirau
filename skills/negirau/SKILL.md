@@ -7,7 +7,7 @@ description: >-
   Works against any self-hosted Negirau instance; pass its origin as the argument.
 license: Apache-2.0
 metadata:
-  version: "0.0.1"
+  version: "0.1.0"
 ---
 
 # Negirau
