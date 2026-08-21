@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/sincekmori/negirau/compare/v0.1.0...v0.1.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* keep the generated root changelog out of the formatter, surface wrangler failures the ops CLI was swallowing, and cut the MCP manifest description to the registry's cap before a release can half-land on it ([4437da3](https://github.com/sincekmori/negirau/commit/4437da3123c5da736f11dd3fe9e13cfbdc8aa055))
+
 ## [0.1.0](https://github.com/sincekmori/negirau/compare/v0.0.1...v0.1.0) (2026-08-21)
 
 
