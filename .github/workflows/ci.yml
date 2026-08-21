@@ -38,6 +38,9 @@ jobs:
         with:
           persist-credentials: false
       - uses: oven-sh/setup-bun@v2
+      # TURNSTILE_SECRET_KEY is a secret, not a var: without .dev.vars the Env
+      # type wrangler generates lacks it and typecheck fails.
+      - run: cp .dev.vars.example .dev.vars
       - run: bun install --frozen-lockfile
       - run: bun run generate:openapi
       - run: bun run lint
@@ -107,6 +110,8 @@ jobs:
           name: openapi
           path: public/v1
       - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: packages/client-ts/package.json
       - uses: actions/setup-node@v7
         with:
           node-version-file: packages/client-ts/.nvmrc
@@ -128,6 +133,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: packages/mcp-server/package.json
       - uses: actions/setup-node@v7
         with:
           node-version-file: packages/mcp-server/.nvmrc
