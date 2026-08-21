@@ -10,6 +10,7 @@
  *   bun run ops finalize <id>        # quarantined -> removed (after 14 days)
  *   bun run ops restore <id>         # quarantined -> active (objection upheld)
  *   bun run ops counts <id>          # exact per-type totals (operator-only)
+ *   bun run ops purge [id]           # removed -> gone: delete the rows for real
  *
  * Targets --env local | development | production. The default is development:
  * touching the production DB is a deliberate act, never a forgotten flag.
@@ -19,7 +20,17 @@ import { unstable_readConfig } from "wrangler";
 
 import { ROLLUP_WATCH_THRESHOLD } from "../app/lib/server/db";
 
-const SUBCOMMANDS = ["review", "apply", "delete", "finalize", "restore", "counts"] as const;
+const SUBCOMMANDS = [
+	"review",
+	"apply",
+	"delete",
+	"finalize",
+	"restore",
+	"counts",
+	"purge",
+] as const;
+/** Subcommands that act on the whole table, so they take no subject id. */
+const WITHOUT_ID: readonly Subcommand[] = ["review", "purge"];
 type Subcommand = (typeof SUBCOMMANDS)[number];
 
 /** Database names come from wrangler.jsonc — the one file a fork edits. */
@@ -125,6 +136,18 @@ const STATEMENTS: Record<Subcommand, (id: string) => string> = {
 	counts: (id) => `
 		SELECT type, SUM(count) AS total FROM reaction_counts
 		WHERE subject_rowid = ${byId(id)} GROUP BY type ORDER BY total DESC`,
+	// The end of the line: 'removed' hides a subject, purge deletes it. The
+	// two-stage removal (§3.5) has already run, so there is nothing left to
+	// reverse — and the reaction counters and any queued request go with the
+	// row, by ON DELETE CASCADE. Listing first shows the operator what went.
+	// Without an id, every removed subject is purged at once.
+	purge: (id) => {
+		const scope = id === "" ? "" : ` AND id = '${id}'`;
+		return `
+		SELECT id, name FROM subjects WHERE status = 'removed'${scope};
+		DELETE FROM subjects
+		 WHERE rowid IN (SELECT rowid FROM subjects WHERE status = 'removed'${scope})`;
+	},
 };
 
 function isSubcommand(word: string | undefined): word is Subcommand {
@@ -138,5 +161,5 @@ if (!isSubcommand(subcommand)) {
 	);
 	process.exit(1);
 }
-const sql = STATEMENTS[subcommand](subcommand === "review" ? "" : subjectId());
+const sql = STATEMENTS[subcommand](WITHOUT_ID.includes(subcommand) ? "" : subjectId());
 console.table((await execute(sql)) as object[]);
