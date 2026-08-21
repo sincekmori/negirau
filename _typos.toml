@@ -1,0 +1,9 @@
+# crate-ci/typos configuration (also used by the CI job).
+
+[default.extend-words]
+# Cloudflare's AsyncLocalStorage compatibility flag, not a typo of "also".
+als = "als"
+
+[files]
+# Build output is minified vendor code, not prose.
+extend-exclude = ["build", ".react-router", "test-results", "playwright-report"]

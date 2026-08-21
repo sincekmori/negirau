@@ -1,0 +1,8 @@
+# Copy to .dev.vars for local development (gitignored).
+# These are Cloudflare's public Turnstile *test* credentials — the widget
+# renders on any hostname and siteverify always succeeds. The site key is
+# pinned here rather than left to wrangler.jsonc `vars`, because that one now
+# holds the real production widget, which is scoped to negirau.com and would
+# refuse to render on localhost.
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA

@@ -1,0 +1,45 @@
+{
+  "name": "negirau-mcp",
+  "version": "0.0.0",
+  "description": "MCP server for the Negirau public API — registers its tools dynamically from the live OpenAPI spec",
+  "keywords": [
+    "api",
+    "mcp",
+    "model-context-protocol",
+    "negirau"
+  ],
+  "homepage": "https://negirau.com",
+  "bugs": "https://github.com/sincekmori/negirau/issues",
+  "license": "Apache-2.0",
+  "author": "Shinsuke Mori <sincekmori@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sincekmori/negirau.git",
+    "directory": "packages/mcp-server"
+  },
+  "bin": {
+    "negirau-mcp": "./dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsc --noEmit && publint"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "publint": "^0.3.23",
+    "tsdown": "^0.22.14",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "mcpName": "io.github.sincekmori/negirau"
+}

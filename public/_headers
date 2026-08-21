@@ -1,0 +1,12 @@
+# Asset headers (Workers static assets honor Pages-style _headers files).
+# llms.txt is UTF-8 prose; without an explicit charset, browsers guess
+# Latin-1 and render em dashes as mojibake.
+# Declare a charset here only where the HTTP default is wrong: JSON is UTF-8
+# by spec (openapi.json needs nothing) and ES modules always decode as UTF-8.
+# Worker-served text (robots.txt, feeds, sitemaps) sets its charset in code.
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+
+# Vite fingerprints every asset filename, so the bytes can never change.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

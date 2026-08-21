@@ -1,0 +1,48 @@
+# release-please bumps version fields but knows nothing about uv or our
+# generators: the bump leaves packages/client-py/uv.lock stale (failing the
+# `uv sync --locked` CI gate) and skills/negirau/SKILL.md stale (failing the
+# generate:skill drift check). This workflow re-locks and regenerates on
+# release-please branches, keeping annotations and version literals out of
+# the generated files themselves.
+name: Release sync
+
+on:
+  pull_request:
+    branches: [main]
+    paths: [package.json, packages/client-py/pyproject.toml]
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    # Only release-please's own PRs; human PRs manage these files themselves.
+    if: startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+      # v9, not v10: v10 is inside the 7-day supply-chain cooldown as of writing
+      # (2026-08-15); Dependabot bumps it once the cooldown passes.
+      # Exact version: astral-sh stopped publishing moving major tags after v7.
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: uv lock
+        working-directory: packages/client-py
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run generate:skill
+      # Known limitation: pushes made with GITHUB_TOKEN do not retrigger CI on
+      # the release PR. Re-run the checks manually after a sync commit, or
+      # switch to a GitHub App token if this becomes friction.
+      - name: Commit the re-synced files if they changed
+        run: |
+          if ! git diff --quiet -- packages/client-py/uv.lock skills/negirau/SKILL.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add packages/client-py/uv.lock skills/negirau/SKILL.md
+            git commit -m "chore: re-sync generated files after release version bump"
+            git push
+          fi

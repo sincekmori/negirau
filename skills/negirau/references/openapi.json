@@ -1,0 +1,437 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Negirau Public API",
+    "description": "Read-only, anonymous, CORS-open API for building third-party viewers over Negirau data. Counts are exposed as display values — exact up to 100, \"100+\" beyond — and never as rankings.",
+    "version": "0.0.0",
+    "termsOfService": "https://negirau.com/terms"
+  },
+  "servers": [
+    {
+      "url": "https://api.negirau.com/v1"
+    }
+  ],
+  "paths": {
+    "/subjects": {
+      "get": {
+        "operationId": "listSubjects",
+        "summary": "List and search subjects",
+        "description": "Cursor-paginated subject listing. `q` does free-text name search (Japanese and English): 1-2 characters match as a name prefix (single page), 3 or more match anywhere in the name. With `near`, switches to a distance-ordered search over subjects that have a spatial dimension (no cursor; results truncated at `limit`).",
+        "x-mcp-tool-name": "negirau_list_subjects",
+        "x-agent-description": "Search Negirau subjects (the recipients of appreciation). Use q for name search, near='lat,lng' for proximity search.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Free-text name search (Japanese and English). 1-2 characters match as a name prefix; 3 or more match anywhere in the name",
+            "schema": {
+              "description": "Free-text name search (Japanese and English). 1-2 characters match as a name prefix; 3 or more match anywhere in the name",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "near",
+            "in": "query",
+            "required": false,
+            "description": "lat,lng — switches to distance-ordered near search (no cursor)",
+            "schema": {
+              "description": "lat,lng — switches to distance-ordered near search (no cursor)",
+              "type": "string",
+              "pattern": "^-?\\d+(?:\\.\\d+)?,-?\\d+(?:\\.\\d+)?$"
+            }
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "required": false,
+            "description": "Near-search radius in meters",
+            "schema": {
+              "default": 3000,
+              "description": "Near-search radius in meters",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50000
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size",
+            "schema": {
+              "default": 20,
+              "description": "Page size",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Keyset cursor from a previous page",
+            "schema": {
+              "description": "Keyset cursor from a previous page",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "subjects": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Public identifier; the page URL is /subjects/{id}"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "anyOf": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "Spatial dimension (optional)"
+                              },
+                              "lng": {
+                                "anyOf": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "next_cursor": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Opaque keyset cursor; null on the last page. Absent semantics for near queries."
+                        }
+                      },
+                      "required": [
+                        "subjects",
+                        "next_cursor"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "subjects": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "Public identifier; the page URL is /subjects/{id}"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "anyOf": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "Spatial dimension (optional)"
+                              },
+                              "lng": {
+                                "anyOf": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "distance_m": {
+                                "type": "number",
+                                "description": "Great-circle distance from the query point, meters"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "lat",
+                              "lng",
+                              "distance_m"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "subjects"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subjects/{id}": {
+      "get": {
+        "operationId": "getSubject",
+        "summary": "Get one subject",
+        "description": "A single subject by its public identifier.",
+        "x-mcp-tool-name": "negirau_get_subject",
+        "x-agent-description": "Fetch one Negirau subject by id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Public subject identifier",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Public identifier; the page URL is /subjects/{id}"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "lat": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Spatial dimension (optional)"
+                    },
+                    "lng": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "lat",
+                    "lng"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active subject has this identifier.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subjects/{id}/reactions": {
+      "get": {
+        "operationId": "getSubjectReactions",
+        "summary": "Reaction display values for a period",
+        "description": "Total and per-type reaction display values for one subject over a period (week, month, year, or all time). Values are exact up to 100 and capped at \"100+\" beyond.",
+        "x-mcp-tool-name": "negirau_get_reactions",
+        "x-agent-description": "Reaction display values for a Negirau subject over a period.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Public subject identifier",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "description": "Aggregation period: ISO week ('2026-W33'), month ('2026-08'), year ('2026'), or 'all'. Default: 'all'",
+            "schema": {
+              "description": "Aggregation period: ISO week ('2026-W33'), month ('2026-08'), year ('2026'), or 'all'. Default: 'all'",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "period": {
+                      "type": "string",
+                      "description": "The aggregation period as requested ('2026-W33', '2026-08', '2026', or 'all')"
+                    },
+                    "total": {
+                      "type": "string",
+                      "description": "Display value: the exact count up to 100, \"100+\" beyond"
+                    },
+                    "by_type": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "string",
+                        "description": "Display value: the exact count up to 100, \"100+\" beyond"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "period",
+                    "total",
+                    "by_type"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query or cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active subject has this identifier.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

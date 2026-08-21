@@ -1,0 +1,8 @@
+packages:
+  - "."
+# Supply-chain cooldown: never install a release younger than 7 days (in minutes).
+# Must stay in sync with the Dependabot cooldown in ../../.github/dependabot.yml.
+minimumReleaseAge: 10080
+# vitest's vite dependency needs esbuild's postinstall (binary download).
+onlyBuiltDependencies:
+  - esbuild

@@ -1,0 +1,4 @@
+[install]
+# Supply-chain cooldown: never install a release younger than 7 days (in seconds).
+# Must stay in sync with the Dependabot cooldown in .github/dependabot.yml.
+minimumReleaseAge = 604800

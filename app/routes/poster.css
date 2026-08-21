@@ -1,0 +1,133 @@
+/* Poster print sheets. The fixed-paper tokens (app.css) on purpose: paper
+   is paper, in both themes and in print. */
+.poster-sheet {
+	background: var(--color-paper-fixed);
+	color: var(--color-ink-fixed);
+	border: 1px solid #e5d8d2;
+	margin: 0 auto;
+}
+.poster-body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	height: 100%;
+	padding: 8%;
+	box-sizing: border-box;
+}
+.poster-body .lead {
+	font-size: 1.4em;
+	font-weight: 700;
+	color: #e0526f;
+	margin: 0;
+}
+.poster-body h2 {
+	margin: 0.4em 0;
+}
+.poster-body .qr {
+	width: 55%;
+	margin: 4% 0;
+}
+.poster-body .qr svg {
+	width: 100%;
+	height: auto;
+}
+.poster-body .hint {
+	margin: 0;
+}
+.poster-body .brand-line {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3em;
+	color: var(--color-brand-fixed);
+	font-weight: 700;
+}
+.poster-body.compact {
+	font-size: 0.5em;
+	padding: 4%;
+}
+.poster-body.compact .qr {
+	/* ≥2cm QR on the 91×55mm card; absolute, so the 55mm cell never
+	   overflows — percentages track the sheet width, and 45% of the cell once
+	   bled into the neighboring cells as "duplicated" images. */
+	width: 24mm;
+	margin: 1mm 0;
+}
+/* Definite heights, not min-height: .poster-body centers with height: 100%,
+   which resolves to nothing against an indefinite (min-height only) parent —
+   the content would sit at the top of the page. */
+.size-a4,
+.size-pop {
+	width: 210mm;
+	height: 297mm;
+}
+.size-a5 {
+	width: 148mm;
+	height: 210mm;
+}
+.size-postcard {
+	width: 100mm;
+	height: 148mm;
+}
+.size-card {
+	width: 210mm;
+	height: 297mm;
+	display: grid;
+	grid-template-columns: repeat(2, 91mm);
+	grid-auto-rows: 55mm;
+	justify-content: center;
+	align-content: start;
+	padding-top: 11mm;
+	box-sizing: border-box;
+}
+.card-cell {
+	border: 0.2mm dashed #c9b8b0; /* cut guides */
+	overflow: hidden;
+}
+.size-pop {
+	display: flex;
+	flex-direction: column;
+}
+.pop-panel {
+	height: 99mm;
+	border-bottom: 0.2mm dashed #c9b8b0; /* fold guides */
+	overflow: hidden;
+}
+.pop-panel .poster-body {
+	padding: 4mm;
+}
+.pop-panel .poster-body .qr {
+	width: 42mm;
+	margin: 2mm 0;
+}
+.pop-panel.flip {
+	transform: rotate(180deg); /* tri-fold tent: top panel reads from the other side */
+}
+.pop-panel.base {
+	border-bottom: none;
+}
+@media print {
+	.poster-controls,
+	header,
+	footer {
+		display: none;
+	}
+	html,
+	body,
+	main {
+		margin: 0;
+		padding: 0;
+		max-width: none;
+	}
+	.poster-sheet {
+		border: none;
+		margin: 0;
+		/* The sheet equals the @page box exactly; clip sub-pixel rounding so it
+		   can never spill a blank second page. Paper ignores the screen-fit
+		   zoom: printing is always true size. */
+		zoom: 1 !important;
+		overflow: hidden;
+		print-color-adjust: exact;
+	}
+}

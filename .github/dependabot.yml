@@ -1,0 +1,52 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    cooldown:
+      default-days: 7
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm:
+        patterns: ["*"]
+    cooldown:
+      default-days: 7
+      # First-party exemptions must match bunfig.toml's cooldown settings — keep both in sync.
+      exclude: []
+  - package-ecosystem: "npm" # packages/client-ts uses pnpm (published npm package)
+    directory: "/packages/client-ts"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm:
+        patterns: ["*"]
+    cooldown:
+      default-days: 7
+      # First-party exemptions must match the pnpm minimumReleaseAge excludes — keep both in sync.
+      exclude: []
+  - package-ecosystem: "npm" # packages/mcp-server uses pnpm (published npm package)
+    directory: "/packages/mcp-server"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm:
+        patterns: ["*"]
+    cooldown:
+      default-days: 7
+      exclude: []
+  - package-ecosystem: "uv" # packages/client-py
+    directory: "/packages/client-py"
+    schedule:
+      interval: "weekly"
+    groups:
+      python:
+        patterns: ["*"]
+    cooldown:
+      default-days: 7

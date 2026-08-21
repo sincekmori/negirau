@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "oxc.oxc-vscode", // oxlint + oxfmt
+    "charliermarsh.ruff", // packages/client-py
+    "EditorConfig.EditorConfig",
+    "bradlc.vscode-tailwindcss"
+  ],
+  "unwantedRecommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+}

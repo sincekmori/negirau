@@ -1,0 +1,192 @@
+# The job list mirrors the local check list documented in AGENTS.md, one for one.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The generated spec is what the client contract tests verify against (§7.2);
+  # generating it once and sharing it saves a full monorepo bun install in every
+  # client job (and matrix leg) below.
+  spec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false # checkout token is not needed after clone
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run generate:openapi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: openapi
+          path: public/v1/openapi.json
+
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run generate:openapi
+      - run: bun run lint
+      - run: bun run format:check
+      - run: bun run typecheck
+      - run: bun run test
+      - run: bun run build
+      - run: bun run knip
+      # SKILL.md is generated-and-committed; fail on drift from the manifest.
+      - run: bun run check:drift
+      - run: bun run check:skill
+
+  # axe-core WCAG 2.1 A/AA audit of the built site (both locales, both color
+  # schemes) against seeded local data — scripts/a11y.ts runs its own preview.
+  a11y:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bunx playwright install --with-deps chromium
+      - run: cp .dev.vars.example .dev.vars
+      - run: bun run db:migrate
+      - run: bun run db:seed
+      - run: bun run generate:openapi
+      - run: bun run build
+      - run: bun run a11y
+
+  # Playwright E2E over the built Worker with seeded local data — the full
+  # user journeys: locale negotiation, reactions+undo, QR send, subject
+  # creation and edit requests, search, nearby search.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bunx playwright install --with-deps chromium
+      - run: cp .dev.vars.example .dev.vars
+      - run: bun run db:migrate
+      - run: bun run db:seed
+      - run: bun run generate:openapi
+      - run: bun run build
+      - run: bun run test:e2e
+
+  typos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: crate-ci/typos@v1
+
+  client-ts:
+    needs: spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: openapi
+          path: public/v1
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: packages/client-ts/.nvmrc
+          cache: pnpm
+          cache-dependency-path: packages/client-ts/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: packages/client-ts
+      - run: pnpm run build
+        working-directory: packages/client-ts
+      - run: pnpm run test
+        working-directory: packages/client-ts
+      - run: pnpm run check
+        working-directory: packages/client-ts
+
+  mcp-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: packages/mcp-server/.nvmrc
+          cache: pnpm
+          cache-dependency-path: packages/mcp-server/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: packages/mcp-server
+      - run: pnpm run build
+        working-directory: packages/mcp-server
+      - run: pnpm run check
+        working-directory: packages/mcp-server
+
+  # Matrix-invariant python checks run once on the floor version…
+  client-py-lint:
+    needs: spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: openapi
+          path: public/v1
+      # v9, not v10: v10 is inside the 7-day supply-chain cooldown as of writing
+      # (2026-08-15); Dependabot bumps it once the cooldown passes.
+      # Exact version: astral-sh stopped publishing moving major tags after v7.
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: uv sync --locked
+        working-directory: packages/client-py
+      - run: uv run ruff check
+        working-directory: packages/client-py
+      - run: uv run ruff format --check
+        working-directory: packages/client-py
+      # ty is pinned to the floor via [tool.ty.environment], identical on every leg.
+      - run: uv run ty check
+        working-directory: packages/client-py
+      - run: uv build
+        working-directory: packages/client-py
+
+  # …and only the test run fans out over the supported minors.
+  client-py-test:
+    needs: spec
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Libraries support every non-EOL CPython minor; the floor comes first.
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: openapi
+          path: public/v1
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: uv sync --locked --python ${{ matrix.python }}
+        working-directory: packages/client-py
+      - run: uv run pytest
+        working-directory: packages/client-py

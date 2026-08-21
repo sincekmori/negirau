@@ -1,0 +1,116 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "negirau",
+  // Highest date the locally installed workerd supports (tests run against the same date).
+  "compatibility_date": "2026-08-08",
+  "compatibility_flags": ["nodejs_als"],
+  "main": "./workers/app.ts",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./build/client",
+  },
+  // The custom domains below are the only public hosts — no *.workers.dev
+  // alias, no preview URLs.
+  "workers_dev": false,
+  "preview_urls": false,
+  // Custom domains, attached at deploy (the negirau.com zone must exist).
+  // Both attach to this one Worker; the versioned API simply lives at the /v1
+  // path (registered in app/routes.ts), so api.negirau.com/v1 is the public base.
+  "routes": [
+    { "pattern": "negirau.com", "custom_domain": true },
+    { "pattern": "api.negirau.com", "custom_domain": true },
+  ],
+  // Daily-review nudge (§ ops): one cron at 08:00 UTC = 17:00 JST mails the
+  // operator when the request queue or the newest-subjects list is non-empty.
+  // Sending to a verified Email Routing destination is free on every plan.
+  "triggers": { "crons": ["0 8 * * *"] },
+  "send_email": [{ "name": "NOTIFY_EMAIL" }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "negirau",
+      "database_id": "12f4bd92-5dae-41ed-b6aa-43305ef30a4f",
+      "migrations_dir": "migrations",
+    },
+  ],
+  // Anti-flood layer 3 (§5.6): coarse IP throttling with Cloudflare-managed volatile counters.
+  // Deliberately loose — mobile CGNAT puts whole event crowds behind one IP; precision is Turnstile's job.
+  // The bindings may be unavailable on the free plan; app code treats them as optional
+  // and the WAF rule (layer 2, configured in the dashboard) carries the load alone in that case.
+  "ratelimits": [
+    {
+      "name": "REACT_RATE_LIMIT_IP",
+      "namespace_id": "1001",
+      "simple": { "limit": 60, "period": 60 },
+    },
+    {
+      "name": "REACT_RATE_LIMIT_IP_SUBJECT",
+      "namespace_id": "1002",
+      "simple": { "limit": 20, "period": 60 },
+    },
+  ],
+  "vars": {
+    // Site identity — the ONLY values a self-hosting fork changes (plus the
+    // routes/bindings above). Pages live at https://{SITE_DOMAIN}, the API at
+    // https://api.{SITE_DOMAIN} (derived in app/lib/site.ts); runtime code
+    // reads env, the build-time generators read this same file via
+    // scripts/site-config.ts.
+    "SITE_DOMAIN": "negirau.com",
+    "CONTACT_EMAIL": "sincekmori@gmail.com",
+    "COPYRIGHT_HOLDER": "Shinsuke Mori",
+    // Kill switch: "false" rejects every anonymous write (reactions, subject
+    // creation, edit/delete requests) and runs the site read-only.
+    "REACTIONS_ENABLED": "true",
+    // Real production widget (managed mode, scoped to negirau.com); sitekeys
+    // are public. Secrets (TURNSTILE_SECRET_KEY) are NOT vars — they live in
+    // `wrangler secret` / .dev.vars.
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAEXTKfySWNOO7R4v",
+  },
+  // Deployed development environment: `bun run deploy:dev` publishes the worker
+  // as negirau-dev at https://dev.negirau.com — real edge, real D1 — so
+  // production stays untouched. Environments do not inherit bindings, hence
+  // the duplication; secrets are set per env (`wrangler secret put X --env dev`).
+  "env": {
+    "dev": {
+      "workers_dev": false,
+      // Environments inherit top-level routes: override so the dev worker
+      // claims only its own hostname, never the production custom domains.
+      "routes": [{ "pattern": "dev.negirau.com", "custom_domain": true }],
+      // No cron in dev: only production may mail the operator. The binding
+      // stays for env parity (nothing fires it without a cron).
+      "triggers": { "crons": [] },
+      "send_email": [{ "name": "NOTIFY_EMAIL" }],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "negirau-dev",
+          "database_id": "3c11ba2d-00fc-4c73-bf0d-eb5eb1e4fe80",
+          "migrations_dir": "migrations",
+        },
+      ],
+      "ratelimits": [
+        {
+          "name": "REACT_RATE_LIMIT_IP",
+          "namespace_id": "2001",
+          "simple": { "limit": 60, "period": 60 },
+        },
+        {
+          "name": "REACT_RATE_LIMIT_IP_SUBJECT",
+          "namespace_id": "2002",
+          "simple": { "limit": 20, "period": 60 },
+        },
+      ],
+      "vars": {
+        // Same identity as production: dev canonicals point at the real site
+        // (the non-canonical host is noindexed by the worker).
+        "SITE_DOMAIN": "negirau.com",
+        "CONTACT_EMAIL": "sincekmori@gmail.com",
+        "COPYRIGHT_HOLDER": "Shinsuke Mori",
+        "REACTIONS_ENABLED": "true",
+        // Real dev widget (created via `wrangler turnstile widget create`),
+        // scoped to the dev hostname; sitekeys are public.
+        "TURNSTILE_SITE_KEY": "0x4AAAAAAEQwUpzMHBRAsILp",
+      },
+    },
+  },
+}

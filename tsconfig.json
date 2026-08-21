@@ -1,0 +1,42 @@
+{
+  "include": [
+    "app/**/*",
+    "workers/**/*",
+    "scripts/**/*",
+    "tests/**/*",
+    "e2e/**/*",
+    "playwright.config.ts",
+    ".react-router/types/**/*",
+    "worker-configuration.d.ts",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "react-router.config.ts"
+  ],
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "target": "ESNext",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "rootDirs": [".", "./.react-router/types"],
+    "paths": {
+      "~/*": ["./app/*"]
+    },
+    "types": [
+      "vite/client",
+      "bun",
+      "./worker-configuration.d.ts",
+      // cloudflare:test module types for the vitest workers pool (tests/).
+      "@cloudflare/vitest-pool-workers/types"
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+# LF everywhere, on every platform (house rule; do not rely on core.autocrlf).
+* text=auto eol=lf

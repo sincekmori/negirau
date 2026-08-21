@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "sortImports": {},
+  "sortTailwindcss": {},
+  "ignorePatterns": [
+    "app/lib/components/ui",
+    "packages/*/CHANGELOG.md",
+    "CLAUDE.md",
+    "skills/negirau"
+  ]
+}

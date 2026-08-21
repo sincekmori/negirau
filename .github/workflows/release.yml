@@ -1,0 +1,119 @@
+# Publishing uses OIDC trusted publishing (no long-lived tokens anywhere):
+#   - npmjs.com: trusted publisher for "negirau" and "negirau-mcp" → this repo/workflow
+#   - PyPI: trusted publisher for "negirau" → this repo/workflow
+# release-please runs a single root component (fixed versioning: the whole
+# repo shares one project version, fanned out via extra-files). Every push to
+# main updates the one release PR; merging it tags vX.Y.Z and publishes all
+# three packages. Merge release PRs promptly after contract changes — the
+# deployed spec carries new content under the old number until the merge.
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Never cancel a release run mid-flight.
+concurrency:
+  group: release
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      # Single root component (fixed versioning): one release covers everything.
+      released: ${{ steps.release.outputs.release_created }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-client-ts:
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write # npm OIDC trusted publishing
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: packages/client-ts/.nvmrc
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+          cache-dependency-path: packages/client-ts/pnpm-lock.yaml
+      # npm >= 11.5.1 is required for OIDC trusted publishing.
+      - run: npm install -g npm@latest
+      - run: pnpm install --frozen-lockfile
+        working-directory: packages/client-ts
+      - run: pnpm run build
+        working-directory: packages/client-ts
+      - run: npm publish
+        working-directory: packages/client-ts
+
+  publish-mcp-server:
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write # npm OIDC trusted publishing
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: packages/mcp-server/.nvmrc
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+          cache-dependency-path: packages/mcp-server/pnpm-lock.yaml
+      - run: npm install -g npm@latest
+      - run: pnpm install --frozen-lockfile
+        working-directory: packages/mcp-server
+      - run: pnpm run build
+        working-directory: packages/mcp-server
+      - run: npm publish
+        working-directory: packages/mcp-server
+      # MCP Registry metadata (server.json; versions kept in sync by release-please
+      # extra-files). Ownership is proven by mcpName in package.json + GitHub OIDC.
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+      - run: ./mcp-publisher login github-oidc
+      - run: ../../mcp-publisher publish
+        working-directory: packages/mcp-server
+
+  publish-client-py:
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write # PyPI OIDC trusted publishing
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # Exact version: astral-sh stopped publishing moving major tags after v7.
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: uv build
+        working-directory: packages/client-py
+      # Trusted publishing is auto-detected in GitHub Actions.
+      - run: uv publish
+        working-directory: packages/client-py

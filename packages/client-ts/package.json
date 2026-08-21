@@ -1,0 +1,50 @@
+{
+  "name": "negirau",
+  "version": "0.0.0",
+  "description": "TypeScript client for the Negirau public API",
+  "keywords": [
+    "api",
+    "appreciation",
+    "client",
+    "gratitude",
+    "negirau"
+  ],
+  "homepage": "https://negirau.com",
+  "bugs": "https://github.com/sincekmori/negirau/issues",
+  "license": "Apache-2.0",
+  "author": "Shinsuke Mori <sincekmori@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sincekmori/negirau.git",
+    "directory": "packages/client-ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json --noEmit && publint && attw --pack . --profile esm-only",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@types/node": "^26.2.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "ajv": "^8.20.0",
+    "publint": "^0.3.23",
+    "tsdown": "^0.22.14",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

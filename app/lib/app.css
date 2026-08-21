@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+@import "tw-animate-css";
+
+/* Theme is the `dark` class on <html>: next-themes resolves the stored choice
+   (or the system preference) before first paint and keeps it in sync. */
+@custom-variant dark (&:is(.dark *));
+
+/* Design language (in the spirit of ink on paper): warm paper and
+   ink, hairline rules instead of boxes, room to breathe. The palette lives in
+   custom properties so both color schemes flow through one set of Tailwind
+   tokens; every stop clears WCAG AAA (7:1) contrast on its background. */
+:root {
+	--paper: #fff8f4;
+	--surface: #ffffff;
+	--ink: #3c2f2f;
+	--ink-soft: #5b4c46;
+	--brand: #e0526f;
+	/* Deep enough for 7:1 (enhanced contrast) even on --brand-wash, the
+	   lightest surface that carries brand-deep text (selected pills, chips). */
+	--brand-deep: #862e45;
+	--brand-wash: #ffeef2;
+	--on-brand: #ffffff;
+	--hairline: rgb(60 47 47 / 0.14);
+	--danger: #7a2222;
+	--radius: 0.5rem;
+	--notice-wash: #fff3cd;
+	color-scheme: light;
+}
+.dark {
+	--paper: #1d1614;
+	--surface: #271e1b;
+	--ink: #f2e8e3;
+	--ink-soft: #bcaaa2;
+	--brand: #e8607c;
+	--brand-deep: #f2a4b6;
+	--brand-wash: rgb(232 96 124 / 0.16);
+	--on-brand: #1d1614;
+	--hairline: rgb(242 232 227 / 0.16);
+	--danger: #eda2a2;
+	--notice-wash: rgb(255 213 128 / 0.14);
+	color-scheme: dark;
+}
+
+@theme inline {
+	/* The house palette. */
+	--color-paper: var(--paper);
+	--color-surface: var(--surface);
+	--color-ink: var(--ink);
+	--color-ink-soft: var(--ink-soft);
+	--color-brand: var(--brand);
+	--color-brand-deep: var(--brand-deep);
+	--color-brand-wash: var(--brand-wash);
+	--color-on-brand: var(--on-brand);
+	--color-hairline: var(--hairline);
+	--color-danger: var(--danger);
+	--color-notice-wash: var(--notice-wash);
+	/* Fixed paper surfaces (the on-page QR card, the print sheets): paper is
+	   paper — these deliberately never switch with the theme. */
+	--color-paper-fixed: #fff;
+	--color-ink-fixed: #3c2f2f;
+	--color-brand-fixed: #b8405e;
+	/* shadcn semantic aliases over the same palette (its "accent" is the
+	   hover wash — the pink is "brand" above, renamed to avoid the collision). */
+	--color-background: var(--paper);
+	--color-foreground: var(--ink);
+	--color-card: var(--surface);
+	--color-card-foreground: var(--ink);
+	--color-popover: var(--surface);
+	--color-popover-foreground: var(--ink);
+	--color-primary: var(--brand-deep);
+	--color-primary-foreground: var(--on-brand);
+	--color-secondary: var(--surface);
+	--color-secondary-foreground: var(--ink);
+	--color-muted: var(--surface);
+	--color-muted-foreground: var(--ink-soft);
+	--color-accent: var(--brand-wash);
+	--color-accent-foreground: var(--ink);
+	--color-destructive: var(--danger);
+	--color-destructive-foreground: var(--paper);
+	--color-border: var(--hairline);
+	--color-input: var(--hairline);
+	--color-ring: var(--ink-soft);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--font-sans: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+}
+
+@layer base {
+	/* Preflight strips underlines; links must look like links — except links
+	   rendered as controls (Button/DropdownMenuItem asChild stamp data-slot). */
+	a:where(:not([data-slot="button"], [data-slot="dropdown-menu-item"])) {
+		text-decoration-line: underline;
+		text-underline-offset: 2px;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
+	body {
+		background: var(--paper);
+		color: var(--ink);
+		font-family: var(--font-sans);
+		line-height: 1.7;
+		-webkit-font-smoothing: antialiased;
+	}
+	/* One heading voice for every page and component. */
+	main h2 {
+		margin-bottom: 1.2rem;
+		font-size: 1.05rem;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+	}
+}
+
+@layer components {
+	/* Locale-declared line wrapping: the string itself marks its break points
+	   (zero-width spaces in ja), keep-all defers to them, and overflow-wrap is
+	   the too-narrow safety net. One rule for every surface — screen and
+	   poster alike — so the convention cannot drift. */
+	.phrase-wrap {
+		word-break: keep-all;
+		overflow-wrap: anywhere;
+	}
+
+	/* The hero heart-pin, drawn like a single brush stroke. */
+	@media (prefers-reduced-motion: no-preference) {
+		.pin-draw path,
+		.pin-draw circle {
+			stroke-dasharray: 1;
+			stroke-dashoffset: 1;
+			animation: pin-draw 1.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+		}
+		.pin-draw circle {
+			animation-delay: 0.6s;
+			animation-duration: 0.7s;
+		}
+	}
+	@keyframes pin-draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+}
+
+@layer components {
+	/* QR arrival feedback: the sent emoji blooms over the page and fades,
+	   then the pressed chip carries the state. Fixed overlay — zero reflow.
+	   Reduced motion keeps the fade (opacity only) and drops the scaling.
+	   The overlay unmounts on animationend, so the duration lives here only. */
+	.send-burst {
+		animation:
+			send-burst-fade 1.6s ease-out forwards,
+			send-burst-scale 1.6s ease-out forwards;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.send-burst {
+			animation-name: send-burst-fade;
+		}
+	}
+	@keyframes send-burst-fade {
+		0% {
+			opacity: 0;
+		}
+		15% {
+			opacity: 1;
+		}
+		70% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+	@keyframes send-burst-scale {
+		0% {
+			transform: scale(0.4);
+		}
+		30% {
+			transform: scale(1.25);
+		}
+		45% {
+			transform: scale(1);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+	/* A freshly sent reaction pops once. */
+	@media (prefers-reduced-motion: no-preference) {
+		.pop-in {
+			animation: pop-in 0.5s ease-out;
+		}
+	}
+	@keyframes pop-in {
+		0% {
+			transform: scale(0);
+		}
+		70% {
+			transform: scale(1.4);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+}

@@ -1,0 +1,182 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // House philosophy: enable everything, report everything as an error.
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "error",
+    "perf": "error",
+    "style": "error",
+    "restriction": "error",
+    "nursery": "error"
+  },
+  "plugins": [
+    "typescript",
+    "import",
+    "unicorn",
+    "oxc",
+    "promise",
+    "node",
+    "react",
+    "react-perf",
+    "jsx-a11y"
+  ],
+  "jsPlugins": ["oxlint-tailwindcss"],
+  "settings": {
+    "tailwindcss": {
+      "entryPoint": "app/lib/app.css"
+    }
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "rules": {
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }], // global stylesheets are side-effect imports by design
+    // --- Legacy-target restriction rules: async/await, spread etc. ARE the modern baseline.
+    "oxc/no-optional-chaining": "off",
+    "oxc/no-async-await": "off",
+    "oxc/no-rest-spread-properties": "off",
+    "unicorn/no-null": "off", // the platform (D1 rows, JSON, DOM) speaks null; banning it fights the stack
+    // --- Dogma rules that force artificial code shapes.
+    "eslint/sort-keys": "off",
+    "eslint/no-magic-numbers": "off",
+    "typescript/no-magic-numbers": "off",
+    "eslint/id-length": "off",
+    "eslint/no-ternary": "off",
+    "eslint/func-style": "off",
+    "eslint/capitalized-comments": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-statements": "off",
+    "eslint/max-lines": "off",
+    "eslint/no-continue": "off",
+
+    "eslint/no-undefined": "off", // undefined is our "absent" value by convention (see AGENTS.md)
+    // --- Ordering belongs to the formatter (oxfmt sortImports).
+    "eslint/sort-imports": "off",
+    "eslint/one-var": "off", // one declaration per const is this codebase's style
+    // --- Conflicting pairs, resolved toward the modern side (named exports win).
+    "import/no-named-export": "off",
+    "import/no-default-export": "off", // React Router route modules and config files REQUIRE default exports
+    "import/prefer-default-export": "off",
+    // --- False positives / noise in this stack.
+    "import/unambiguous": "off", // ambient .d.ts files are modules by construction
+    "typescript/no-useless-empty-export": "off", // `export {}` is what MAKES app.d.ts a module; removing it breaks the App augmentation
+    "unicorn/require-module-specifiers": "off", // same reason: the empty `export {}` module marker is intentional
+    "unicorn/prefer-dom-node-append": "off", // Workers' HTMLRewriter global Element type merges with DOM Element and breaks append()'s signature
+    // --- False positives against browser APIs.
+    "unicorn/no-array-fill-with-reference-type": "off", // misfires on CanvasRenderingContext2D.fill(Path2D)
+    // --- Rules that fight the platform's callback APIs.
+    "promise/avoid-new": "off", // wrapping Turnstile/geolocation/canvas callbacks REQUIRES new Promise
+    "eslint/no-bitwise": "off", // the geohash codec is bit manipulation by nature
+    "eslint/init-declarations": "off", // declare-at-first-use with a later assignment is idiomatic TS
+    // --- Idioms we consciously keep.
+    "eslint/no-void": "off", // `void promise` is the idiom for intentionally-unawaited fire-and-forget
+    "eslint/no-inline-comments": "off", // why-comments next to config-like literals are house style
+    "typescript/explicit-function-return-type": "off", // inference-first typing: annotate boundaries, not locals
+    "typescript/explicit-module-boundary-types": "off",
+    "eslint/no-duplicate-imports": "off", // conflicts with import/no-duplicates + verbatimModuleSyntax type imports
+    "import/exports-last": "off", // constants-first file layout is more readable than exports-last
+    "import/group-exports": "off", // single merged export statement hurts readability; export at declaration
+    "import/max-dependencies": "off", // arbitrary size cap; route files legitimately compose many modules
+    "eslint/max-params": "off", // arbitrary size cap
+    "eslint/require-unicode-regexp": "off", // ASCII-only regexes here; the u flag changes escape semantics for no gain
+    "unicorn/prefer-global-this": "off", // Workers code uses explicit `crypto`/`caches` globals, not globalThis
+    // --- Configured instead of disabled.
+    "eslint/complexity": ["error", { "max": 10 }], // default 20 is too loose (house threshold)
+    "eslint/no-console": ["error", { "allow": ["error", "warn"] }], // scoped logging: only error/warn reach Workers logs
+    "eslint/no-use-before-define": ["error", { "functions": false }], // function hoisting is safe and aids top-down reading
+    "import/no-namespace": ["error", { "ignore": ["zod"] }], // house zod convention: import * as z from "zod"
+    "unicorn/no-useless-undefined": ["error", { "checkArguments": false }], // explicit undefined arguments document intent (e.g. safeParse(undefined))
+    "typescript/no-namespace": ["error", { "allowDeclarations": true }], // ambient Env augmentation requires `declare namespace`
+    // --- react: everything on, minus legacy/dogma rules.
+    "react/react-in-jsx-scope": "off", // the automatic JSX runtime (React 17+) needs no import
+    "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
+    "react/jsx-max-depth": "off", // arbitrary size cap
+    "react/jsx-no-literals": "off", // literal text in JSX is normal application code
+    "react/forbid-component-props": "off", // className on components is the shadcn/tailwind idiom
+    "react/only-export-components": "off", // route modules export loaders/actions by framework design
+    "react/no-multi-comp": "off", // route modules bundle page+helpers; root bundles Layout/ErrorBoundary by framework design
+    "react/no-danger": "off", // two deliberate sites: JSON-LD script (our own copy) and the uqr-generated QR svg
+    "react-perf/jsx-no-new-function-as-prop": "off", // inline handlers are idiomatic React; nothing here renders hot lists
+    "react-perf/jsx-no-new-object-as-prop": "off", // same reason
+    "tailwindcss/enforce-consistent-line-wrapping": "off", // line wrapping belongs to the formatter
+    // --- oxlint-tailwindcss: everything on, minus the rules below.
+    "tailwindcss/no-unknown-classes": [
+      "error",
+      {
+        "ignorePrefixes": ["poster-", "pop-", "pin-", "size-"],
+        "allowlist": ["card-cell", "lead", "qr", "hint", "brand-line", "flip", "base"]
+      }
+    ], // plain-CSS classes for print sheets and keyframe hooks (app/lib/app.css, poster.css)
+    "tailwindcss/no-duplicate-classes": "error",
+    "tailwindcss/no-conflicting-classes": "error",
+    "tailwindcss/no-deprecated-classes": "error",
+    "tailwindcss/no-unnecessary-whitespace": "error",
+    "tailwindcss/no-dark-without-light": "error",
+    "tailwindcss/no-contradicting-variants": "error",
+    "tailwindcss/enforce-canonical": "error",
+    "tailwindcss/enforce-shorthand": "error",
+    "tailwindcss/enforce-logical": "error",
+    "tailwindcss/enforce-consistent-important-position": "error",
+    "tailwindcss/enforce-negative-arbitrary-values": "error",
+    "tailwindcss/enforce-consistent-variable-syntax": "error",
+    "tailwindcss/consistent-variant-order": "error",
+    "tailwindcss/no-unnecessary-arbitrary-value": "error",
+    "tailwindcss/prefer-theme-tokens": "error",
+    "tailwindcss/enforce-sort-order": "off", // ordering belongs to the formatter (oxfmt sortTailwindcss)
+    "tailwindcss/enforce-physical": "off", // conflicting pair with enforce-logical; logical properties are the modern side
+    "tailwindcss/max-class-count": "off", // arbitrary size cap
+    "tailwindcss/no-arbitrary-value": "off", // fluid type/layout (clamp, min) needs arbitrary values by design
+    "tailwindcss/no-hardcoded-colors": "off", // white-on-brand button text and print-fixed poster colors are deliberate
+    "tailwindcss/no-restricted-classes": "off" // nothing to restrict yet; enable with a list when there is
+  },
+  "overrides": [
+    {
+      // Test idioms: non-null assertions on rows the test itself created, sequential awaits in setup.
+      "files": ["**/*.test.ts", "tests/**", "e2e/**"],
+      "rules": {
+        "import/no-unassigned-import": "off", // ?raw fixture imports and test-setup side effects
+        "typescript/no-non-null-assertion": "off",
+        "eslint/no-await-in-loop": "off"
+      }
+    },
+    {
+      // Config / script / test-setup files run under bun or node, not in the Worker.
+      "files": ["*.config.ts", "scripts/**", "tests/**", "e2e/**"],
+      "env": { "node": true },
+      "globals": { "Bun": "readonly" },
+      "rules": {
+        "eslint/no-console": "off", // CLI scripts talk to the operator via stdout
+        "import/no-nodejs-modules": "off",
+        "node/no-top-level-await": "off", // these are ESM-only entry points, never require()d
+        "import/no-relative-parent-imports": "off", // scripts legitimately reach into ../src (single source of truth)
+        "unicorn/no-process-exit": "off", // exit codes are a CLI's interface
+        "eslint/no-await-in-loop": "off" // sequential file writes in generators are intentional
+      }
+    },
+    {
+      // e2e specs run under node: a tiny sync read of .dev.vars at module init is fine.
+      "files": ["e2e/**"],
+      "rules": {
+        "node/no-sync": "off"
+      }
+    },
+    {
+      // React component files: PascalCase per the ecosystem convention.
+      "files": ["app/**/components/**/*.tsx"],
+      "rules": {
+        "unicorn/filename-case": ["error", { "case": "pascalCase" }]
+      }
+    }
+  ],
+  "ignorePatterns": [
+    ".react-router",
+    "build",
+    "node_modules",
+    "public/data", // generated dumps
+    "worker-configuration.d.ts", // generated by `wrangler types`
+    "packages", // client packages lint themselves (pnpm-managed sub-projects)
+    "app/lib/components/ui" // vendored shadcn/ui components keep upstream style
+  ]
+}
