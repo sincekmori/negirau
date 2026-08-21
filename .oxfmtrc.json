@@ -5,6 +5,7 @@
   "sortTailwindcss": {},
   "ignorePatterns": [
     "app/lib/components/ui",
+    "CHANGELOG.md",
     "packages/*/CHANGELOG.md",
     "CLAUDE.md",
     "skills/negirau"

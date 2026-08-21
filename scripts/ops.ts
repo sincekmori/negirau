@@ -52,7 +52,9 @@ function wranglerArgs(): { db: string; flags: readonly string[] } {
 async function execute(sql: string): Promise<unknown> {
 	const { db, flags } = wranglerArgs();
 	const proc = Bun.spawn(
-		["bunx", "wrangler", "d1", "execute", db, ...flags, "--json", "--command", sql],
+		// Remote writes prompt for confirmation; this runs non-interactively, and
+		// the deliberate act is already the explicit `--env production`.
+		["bunx", "wrangler", "d1", "execute", db, ...flags, "--yes", "--json", "--command", sql],
 		{ stdout: "pipe", stderr: "pipe" },
 	);
 	const [stdout, stderr, exitCode] = await Promise.all([
@@ -61,7 +63,10 @@ async function execute(sql: string): Promise<unknown> {
 		proc.exited,
 	]);
 	if (exitCode !== 0) {
-		throw new Error(stderr);
+		// wrangler reports some failures on stdout: showing only stderr swallows them.
+		throw new Error(
+			[stderr, stdout].filter(Boolean).join("\n").trim() || `wrangler exited ${exitCode}`,
+		);
 	}
 	const parsed = JSON.parse(stdout) as { results: unknown[] }[];
 	return parsed.flatMap((statement) => statement.results);
