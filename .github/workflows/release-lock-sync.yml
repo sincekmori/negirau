@@ -1,9 +1,9 @@
 # release-please bumps version fields but knows nothing about uv or our
 # generators: the bump leaves packages/client-py/uv.lock stale (failing the
-# `uv sync --locked` CI gate) and skills/negirau/SKILL.md stale (failing the
-# generate:skill drift check). This workflow re-locks and regenerates on
-# release-please branches, keeping annotations and version literals out of
-# the generated files themselves.
+# `uv sync --locked` CI gate) and skills/negirau/ stale (the spec snapshot
+# carries info.version, failing the generate:skill drift check). This workflow
+# re-locks and regenerates on release-please branches, keeping version literals
+# out of the generated files wherever they are not part of the payload.
 name: Release sync
 
 on:
@@ -39,10 +39,10 @@ jobs:
       # switch to a GitHub App token if this becomes friction.
       - name: Commit the re-synced files if they changed
         run: |
-          if ! git diff --quiet -- packages/client-py/uv.lock skills/negirau/SKILL.md; then
+          if ! git diff --quiet -- packages/client-py/uv.lock skills/negirau; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add packages/client-py/uv.lock skills/negirau/SKILL.md
+            git add packages/client-py/uv.lock skills/negirau
             git commit -m "chore: re-sync generated files after release version bump"
             git push
           fi

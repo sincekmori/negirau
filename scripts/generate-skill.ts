@@ -106,7 +106,7 @@ curl "{API}/subjects?q=${EXAMPLE_QUERY}&limit=5"
 | --- | --- |
 ${operationIndex}
 
-For request/response shapes, read [references/openapi.json](references/openapi.json) (snapshot, version ${PROJECT_VERSION}).
+For request/response shapes, read [references/openapi.json](references/openapi.json) (snapshot).
 When the network is available prefer the live contract — it is always current even when this skill is stale:
 
 \`\`\`

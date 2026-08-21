@@ -7,7 +7,7 @@ description: >-
   Works against any self-hosted Negirau instance; pass its origin as the argument.
 license: Apache-2.0
 metadata:
-  version: "0.0.0"
+  version: "0.0.1"
 ---
 
 # Negirau
@@ -61,7 +61,7 @@ curl "{API}/subjects?q=library&limit=5"
 | `GET /subjects/{id}`           | Get one subject                      |
 | `GET /subjects/{id}/reactions` | Reaction display values for a period |
 
-For request/response shapes, read [references/openapi.json](references/openapi.json) (snapshot, version 0.0.0).
+For request/response shapes, read [references/openapi.json](references/openapi.json) (snapshot).
 When the network is available prefer the live contract — it is always current even when this skill is stale:
 
 ```
