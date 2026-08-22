@@ -18,11 +18,18 @@ CREATE INDEX idx_subjects_geohash ON subjects (geohash) WHERE geohash IS NOT NUL
 -- 1-2 character queries: bounded prefix seeks over enumerable names (the
 -- trigram FTS index below cannot match fewer than 3 characters).
 CREATE INDEX idx_subjects_name ON subjects (name) WHERE status = 'active' AND listed = 1;
+-- `ops purge` seeks the rows awaiting physical deletion instead of scanning
+-- the table; the partial index holds only those few, so it costs nothing on
+-- the write path and keeps every operator query bounded.
+CREATE INDEX idx_subjects_removed ON subjects (rowid) WHERE status = 'removed';
 
 -- Daily reaction counters. Day granularity enables period aggregation and
 -- surgical rollback of an attacked day. One reaction = one UPSERT.
 CREATE TABLE reaction_counts (
-  subject_rowid INTEGER NOT NULL REFERENCES subjects(rowid),
+  -- CASCADE, not a hand-written multi-table delete: `ops purge` removes a
+  -- subject for real, and SQLite reuses a freed rowid, so a counter left
+  -- behind would resurface as some later subject's reactions.
+  subject_rowid INTEGER NOT NULL REFERENCES subjects(rowid) ON DELETE CASCADE,
   type TEXT NOT NULL,
   day TEXT NOT NULL,             -- ISO date, UTC day boundary (see app/lib/period.ts)
   count INTEGER NOT NULL DEFAULT 0,
@@ -37,7 +44,7 @@ CREATE TABLE reaction_counts (
 -- subject x kind -- a newer request overwrites the pending one -- keeps the
 -- table bounded by the subject count (D1 free tier).
 CREATE TABLE subject_requests (
-  subject_rowid INTEGER NOT NULL REFERENCES subjects(rowid),
+  subject_rowid INTEGER NOT NULL REFERENCES subjects(rowid) ON DELETE CASCADE,
   kind TEXT NOT NULL CHECK (kind IN ('update', 'delete')),
   payload TEXT,                  -- JSON of the requested fields (update only)
   created_at TEXT NOT NULL,      -- ISO 8601
