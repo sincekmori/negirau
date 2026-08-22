@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/sincekmori/negirau/compare/v0.1.1...v0.2.0) (2026-08-22)
+
+
+### Features
+
+* end a removal with a real delete ([92834fd](https://github.com/sincekmori/negirau/commit/92834fd5fa931b6ce38ad2d7bea4b6421f0be9dd))
+* end a removal with a real delete — ops purge drops the row for good, and ON DELETE CASCADE takes its counters and queued requests with it so a reused rowid can never inherit orphans ([d7e553f](https://github.com/sincekmori/negirau/commit/d7e553fa9bb5d5adc09a960095a4f7c192610765))
+
 ## [0.1.1](https://github.com/sincekmori/negirau/compare/v0.1.0...v0.1.1) (2026-08-21)
 
 
