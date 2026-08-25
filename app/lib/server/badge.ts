@@ -1,9 +1,11 @@
 /**
  * Flat SVG badges rendered from string templates: no Satori, no fonts to
  * load, so CPU cost is effectively zero and the CDN / GitHub Camo cache the
- * result. The one badge shows the subject's name and the period's display
- * value in the brand colors, truncated so it stays on one line even on a
- * small phone screen.
+ * result. The one badge is an identity mark — the brand segment ({icon}
+ * Negirau) and the subject's name — with no count on it: an embedded number
+ * would go stale in third-party caches, and the badge's job is to say "this
+ * page collects appreciation here", not to score it. Language-neutral by
+ * construction, so it needs no lang parameter.
  */
 
 import { BRAND_COLORS, heartPinOutline } from "~/lib/brand";
@@ -13,6 +15,7 @@ const FONT_FAMILY = "Verdana,Geneva,DejaVu Sans,sans-serif";
 const HEIGHT = 20;
 const PADDING = 6;
 const ICON_SIZE = 13;
+const BRAND_TEXT = "Negirau";
 /** Total width budget: fits an iPhone SE class viewport (375px) with margins. */
 const MAX_WIDTH = 360;
 const ELLIPSIS = "…";
@@ -46,25 +49,24 @@ function truncateToWidth(text: string, budget: number): string {
 	return `${kept}${ELLIPSIS}`;
 }
 
-export function renderBadgeSvg(label: string, value: string): string {
-	const valueWidth = PADDING + textWidth(value) + PADDING;
-	const labelBudget = MAX_WIDTH - valueWidth - (PADDING + ICON_SIZE + 4 + PADDING);
-	const shownLabel = truncateToWidth(label, labelBudget);
-	const labelWidth = PADDING + ICON_SIZE + 4 + textWidth(shownLabel) + PADDING;
-	const total = labelWidth + valueWidth;
+export function renderBadgeSvg(subjectName: string): string {
+	const brandWidth = PADDING + ICON_SIZE + 4 + textWidth(BRAND_TEXT) + PADDING;
+	const nameBudget = MAX_WIDTH - brandWidth - 2 * PADDING;
+	const shownName = truncateToWidth(subjectName, nameBudget);
+	const nameWidth = PADDING + textWidth(shownName) + PADDING;
+	const total = brandWidth + nameWidth;
 	const iconScale = ICON_SIZE / 24;
-	const escapedLabel = escapeXml(shownLabel);
-	const escapedValue = escapeXml(value);
-	return `<svg xmlns="http://www.w3.org/2000/svg" width="${total}" height="${HEIGHT}" role="img" aria-label="${escapedLabel}: ${escapedValue}">
-<title>${escapedLabel}: ${escapedValue}</title>
-<rect width="${labelWidth}" height="${HEIGHT}" fill="${BRAND_COLORS.accentDark}"/>
-<rect x="${labelWidth}" width="${valueWidth}" height="${HEIGHT}" fill="${BRAND_COLORS.accent}"/>
+	const escapedName = escapeXml(shownName);
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="${total}" height="${HEIGHT}" role="img" aria-label="${BRAND_TEXT}: ${escapedName}">
+<title>${BRAND_TEXT}: ${escapedName}</title>
+<rect width="${brandWidth}" height="${HEIGHT}" fill="${BRAND_COLORS.accentDark}"/>
+<rect x="${brandWidth}" width="${nameWidth}" height="${HEIGHT}" fill="${BRAND_COLORS.accent}"/>
 <g transform="translate(${PADDING},${(HEIGHT - ICON_SIZE) / 2}) scale(${iconScale})">
 ${heartPinOutline("#fff")}
 </g>
 <g fill="#fff" font-family="${FONT_FAMILY}" font-size="11">
-<text x="${PADDING + ICON_SIZE + 4}" y="14">${escapedLabel}</text>
-<text x="${labelWidth + PADDING}" y="14">${escapedValue}</text>
+<text x="${PADDING + ICON_SIZE + 4}" y="14">${BRAND_TEXT}</text>
+<text x="${brandWidth + PADDING}" y="14">${escapedName}</text>
 </g>
 </svg>`;
 }

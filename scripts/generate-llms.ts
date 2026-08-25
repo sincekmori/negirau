@@ -35,7 +35,7 @@ Pages are served in English and Japanese under /en and /ja; bare URLs redirect t
 
 ## Embedding
 
-- [Display badge](${CANONICAL_ORIGIN}/subjects/sincekmori/badge): ${CANONICAL_ORIGIN}/subjects/{id}/badge?period=week|month|year|all&lang=ja|en — the period's display value
+- [Identity badge](${CANONICAL_ORIGIN}/subjects/sincekmori/badge): ${CANONICAL_ORIGIN}/subjects/{id}/badge — the brand mark and the subject's name, deliberately count-free and language-neutral
 - [Atom feed](${CANONICAL_ORIGIN}/subjects/sincekmori/feed): ${CANONICAL_ORIGIN}/subjects/{id}/feed — the pull-based substitute for notification emails
 
 ## Integrations

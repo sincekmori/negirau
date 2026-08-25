@@ -126,7 +126,7 @@ Never try to automate a send; help the human open the page instead.
 
 ## Embedding
 
-- Badge (the period's display value, e.g. for a README): \`{ORIGIN}/subjects/{id}/badge?period=week|month|year|all&lang=ja|en\` — embed it behind a link to \`{ORIGIN}/subjects/{id}\`; there is deliberately no send badge, so an embedded click never sends by itself
+- Badge (an identity mark, e.g. for a README): \`{ORIGIN}/subjects/{id}/badge\` — the brand and the subject's name, deliberately count-free; embed it behind a link to \`{ORIGIN}/subjects/{id}\`, and note there is no send badge either, so an embedded click never sends by itself
 - Atom feed (the pull-based substitute for notification emails): \`{ORIGIN}/subjects/{id}/feed\`
 - Subject pages ship OGP images: pasting a link into chat or social media renders a card, and — per the no-side-effect rule — never counts as a send.
 

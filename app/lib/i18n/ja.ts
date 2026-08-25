@@ -176,6 +176,5 @@ export const ja: Messages = {
 
 	privacyTitle: "プライバシーポリシー",
 
-	badgePeriodSuffix: { week: "週", month: "月", year: "年" },
 	termsTitle: "利用規約",
 };

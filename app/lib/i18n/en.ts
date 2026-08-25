@@ -173,6 +173,5 @@ export const en: Messages = {
 
 	privacyTitle: "Privacy policy",
 
-	badgePeriodSuffix: { week: "wk", month: "mo", year: "yr" },
 	termsTitle: "Terms of service",
 };

@@ -62,7 +62,7 @@ export function monthRange(date: Date): DayRange {
 }
 
 /** First..last day of the calendar year containing `date`. */
-export function yearRange(date: Date): DayRange {
+function yearRange(date: Date): DayRange {
 	const year = date.getUTCFullYear();
 	return { start: `${year}-01-01`, end: `${year}-12-31` };
 }
