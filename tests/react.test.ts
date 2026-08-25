@@ -32,7 +32,7 @@ beforeEach(async () => {
 	siteverify.mockReset();
 	vi.stubGlobal("fetch", siteverify);
 	await resetDb();
-	subject = await seedSubject("テスト消防署", 35.6, 139.65);
+	subject = await seedSubject("test library", 35.6, 139.65);
 });
 
 afterEach(() => {

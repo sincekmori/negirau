@@ -18,7 +18,7 @@ import { Negirau } from "negirau";
 
 const client = new Negirau();
 
-const found = await client.subjects.list({ q: "消防", limit: 5 }); // free-text name search
+const found = await client.subjects.list({ q: "library", limit: 5 }); // free-text name search
 for (const subject of found.subjects) {
   console.log(subject.id, subject.name);
 }

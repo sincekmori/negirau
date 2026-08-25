@@ -8,7 +8,7 @@ by spec contract tests (tests/test_contract.py).
     from negirau import Negirau
 
     client = Negirau()
-    page = client.subjects.list(q="消防")
+    page = client.subjects.list(q="library")
 """
 
 from negirau._client import AsyncNegirau, Negirau

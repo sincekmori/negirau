@@ -70,8 +70,9 @@ const CHECKS: Check[] = [
 		expect: okJson,
 	})),
 	{ name: "v1 openapi", path: "/v1/openapi.json", expect: okJson },
-	// "消防署" — three characters, the q= minimum (trigram index width).
-	{ name: "v1 search", path: "/v1/subjects?q=%E6%B6%88%E9%98%B2%E7%BD%B2&limit=5", expect: okJson },
+	// A launch-seed name, over the 3-character trigram minimum, so the check
+	// exercises the FTS path and can actually hit on a freshly seeded instance.
+	{ name: "v1 search", path: "/v1/subjects?q=Claude&limit=5", expect: okJson },
 	{
 		name: "robots",
 		path: "/robots.txt",

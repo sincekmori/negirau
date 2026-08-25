@@ -80,7 +80,7 @@ class Negirau:
         from negirau import Negirau
 
         client = Negirau()
-        page = client.subjects.list(q="消防")
+        page = client.subjects.list(q="library")
 
     The API is read-only, anonymous, and returns counts only as coarse
     buckets ("100+") — that is the service's anti-ranking design.

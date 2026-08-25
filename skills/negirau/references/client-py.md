@@ -18,7 +18,7 @@ from negirau import Negirau
 
 client = Negirau()
 
-found = client.subjects.list(q="消防", limit=5)  # free-text name search
+found = client.subjects.list(q="library", limit=5)  # free-text name search
 for subject in found.subjects:
     print(subject.id, subject.name)
 

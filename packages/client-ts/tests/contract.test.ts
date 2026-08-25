@@ -60,7 +60,7 @@ const SUBJECT_ID = "0e6f9b3a-6b1e-4b8a-9a6a-1c2d3e4f5a6b";
 
 const SUBJECT_SAMPLE = {
 	id: SUBJECT_ID,
-	name: "世田谷消防署",
+	name: "Setagaya Central Library",
 	lat: 35.6466,
 	lng: 139.6532,
 } satisfies Subject;
@@ -69,7 +69,7 @@ const SUBJECT_SAMPLE = {
 // variant is first-class, so the parsing path must be pinned too.
 const NAME_ONLY_SAMPLE = {
 	id: "6f1d2c3b-4a59-4e6f-8a7b-9c0d1e2f3a4b",
-	name: "山田 太郎",
+	name: "Taro Yamada",
 	lat: null,
 	lng: null,
 } satisfies Subject;
@@ -86,7 +86,7 @@ const OPERATIONS: Record<
 			next_cursor: null,
 		} satisfies SubjectPage,
 		calls: [
-			(c) => c.subjects.list({ q: "消防署", limit: 5 }),
+			(c) => c.subjects.list({ q: "library", limit: 5 }),
 			(c) => c.subjects.list({ cursor: "abc" }),
 		],
 	},
