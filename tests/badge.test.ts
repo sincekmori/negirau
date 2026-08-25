@@ -37,8 +37,9 @@ describe("renderBadgeSvg", () => {
 	});
 
 	it("brand-fills every badge", () => {
-		expect(renderBadgeSvg("x")).toContain(BRAND_COLORS.accentDark);
-		expect(renderBadgeSvg("x")).toContain(BRAND_COLORS.accent);
+		const svg = renderBadgeSvg("x");
+		expect(svg).toContain(BRAND_COLORS.accentDark);
+		expect(svg).toContain(BRAND_COLORS.accent);
 	});
 });
 

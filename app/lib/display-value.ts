@@ -1,7 +1,7 @@
 /**
  * The public display value for a reaction count: exact up to 100, capped at
  * "100+" beyond. The 100 cap is the only boundary — no lower brackets exist.
- * Every public surface (pages, OGP, badges, API) renders counts through this
+ * Every public surface (pages, OGP, API) renders counts through this
  * function; unbounded exact counts stay operator-only.
  */
 

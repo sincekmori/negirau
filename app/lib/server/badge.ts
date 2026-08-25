@@ -49,24 +49,25 @@ function truncateToWidth(text: string, budget: number): string {
 	return `${kept}${ELLIPSIS}`;
 }
 
+const BRAND_WIDTH = PADDING + ICON_SIZE + 4 + textWidth(BRAND_TEXT) + PADDING;
+const NAME_BUDGET = MAX_WIDTH - BRAND_WIDTH - 2 * PADDING;
+const ICON_SCALE = ICON_SIZE / 24;
+
 export function renderBadgeSvg(subjectName: string): string {
-	const brandWidth = PADDING + ICON_SIZE + 4 + textWidth(BRAND_TEXT) + PADDING;
-	const nameBudget = MAX_WIDTH - brandWidth - 2 * PADDING;
-	const shownName = truncateToWidth(subjectName, nameBudget);
+	const shownName = truncateToWidth(subjectName, NAME_BUDGET);
 	const nameWidth = PADDING + textWidth(shownName) + PADDING;
-	const total = brandWidth + nameWidth;
-	const iconScale = ICON_SIZE / 24;
+	const total = BRAND_WIDTH + nameWidth;
 	const escapedName = escapeXml(shownName);
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${total}" height="${HEIGHT}" role="img" aria-label="${BRAND_TEXT}: ${escapedName}">
 <title>${BRAND_TEXT}: ${escapedName}</title>
-<rect width="${brandWidth}" height="${HEIGHT}" fill="${BRAND_COLORS.accentDark}"/>
-<rect x="${brandWidth}" width="${nameWidth}" height="${HEIGHT}" fill="${BRAND_COLORS.accent}"/>
-<g transform="translate(${PADDING},${(HEIGHT - ICON_SIZE) / 2}) scale(${iconScale})">
+<rect width="${BRAND_WIDTH}" height="${HEIGHT}" fill="${BRAND_COLORS.accentDark}"/>
+<rect x="${BRAND_WIDTH}" width="${nameWidth}" height="${HEIGHT}" fill="${BRAND_COLORS.accent}"/>
+<g transform="translate(${PADDING},${(HEIGHT - ICON_SIZE) / 2}) scale(${ICON_SCALE})">
 ${heartPinOutline("#fff")}
 </g>
 <g fill="#fff" font-family="${FONT_FAMILY}" font-size="11">
 <text x="${PADDING + ICON_SIZE + 4}" y="14">${BRAND_TEXT}</text>
-<text x="${brandWidth + PADDING}" y="14">${escapedName}</text>
+<text x="${BRAND_WIDTH + PADDING}" y="14">${escapedName}</text>
 </g>
 </svg>`;
 }
@@ -75,7 +76,9 @@ export function badgeResponse(svg: string): Response {
 	return new Response(svg, {
 		headers: {
 			"content-type": "image/svg+xml; charset=utf-8",
-			"cache-control": "public, max-age=300, s-maxage=3600",
+			// The badge changes only on a rename or a takedown, both daily-review
+			// events — the same staleness the OG card already accepts at these TTLs.
+			"cache-control": "public, max-age=3600, s-maxage=86400",
 		},
 	});
 }
