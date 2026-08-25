@@ -1,6 +1,9 @@
 # negirau-mcp
 
-[![npm version](https://img.shields.io/npm/v/negirau-mcp)](https://www.npmjs.com/package/negirau-mcp)
+[![npm version](https://badge.fury.io/js/negirau-mcp.svg)](https://badge.fury.io/js/negirau-mcp)
+[![Node Versions](https://img.shields.io/node/v/negirau-mcp.svg)](https://www.npmjs.com/package/negirau-mcp)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/sincekmori/negirau/actions/workflows/ci.yml/badge.svg)](https://github.com/sincekmori/negirau/actions/workflows/ci.yml)
 
 MCP (Model Context Protocol) server for the [Negirau](https://negirau.com) public API.
 

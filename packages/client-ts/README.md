@@ -1,6 +1,9 @@
 # negirau
 
-[![npm version](https://img.shields.io/npm/v/negirau)](https://www.npmjs.com/package/negirau)
+[![npm version](https://badge.fury.io/js/negirau.svg)](https://badge.fury.io/js/negirau)
+[![Node Versions](https://img.shields.io/node/v/negirau.svg)](https://www.npmjs.com/package/negirau)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/sincekmori/negirau/actions/workflows/ci.yml/badge.svg)](https://github.com/sincekmori/negirau/actions/workflows/ci.yml)
 
 Typed TypeScript client for the [Negirau](https://negirau.com) public API (read-only, anonymous, CORS-open).
 
