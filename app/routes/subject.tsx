@@ -361,12 +361,12 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 				<section className="border-hairline mt-12 flex flex-col items-center gap-3 border-t pt-8 text-center">
 					<div className="bg-paper-fixed text-ink-fixed w-fit rounded-lg px-3 py-2 shadow-sm">
 						{/* Name only: the pin lives inside the QR itself. */}
-						<p className="mb-1 max-w-40 truncate text-[0.8rem] font-medium">{subject.name}</p>
+						<p className="mb-1 max-w-36 truncate text-[0.8rem] font-medium">{subject.name}</p>
 						{/* Decorative for readers: the caption and hint already say it. */}
 						<div
 							aria-hidden="true"
 							data-qr-type={qrType}
-							className="mx-auto size-28 [&_svg]:size-full"
+							className="mx-auto size-36 [&_svg]:size-full"
 							dangerouslySetInnerHTML={{ __html: qrSvg }}
 						/>
 						<p className="mt-1 text-[0.8rem] font-medium">{m.sendVerb(REACTION_EMOJI[qrType])}</p>
