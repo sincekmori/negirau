@@ -1,5 +1,11 @@
 # Negirau
 
+[![CI](https://github.com/sincekmori/negirau/actions/workflows/ci.yml/badge.svg)](https://github.com/sincekmori/negirau/actions/workflows/ci.yml)
+[![npm negirau](https://img.shields.io/npm/v/negirau?label=npm%20negirau)](https://www.npmjs.com/package/negirau)
+[![npm negirau-mcp](https://img.shields.io/npm/v/negirau-mcp?label=npm%20negirau-mcp)](https://www.npmjs.com/package/negirau-mcp)
+[![PyPI negirau](https://img.shields.io/pypi/v/negirau?label=PyPI%20negirau)](https://pypi.org/project/negirau/)
+[![Negirau](https://negirau.com/subjects/sincekmori/badge)](https://negirau.com/subjects/sincekmori)
+
 日頃の担い手に、ねぎらいを。
 Negirau (negirau.com) lets anyone send a one-tap, login-free appreciation to the people behind everyday work — fire stations, event crews, online services, open-source maintainers.
 

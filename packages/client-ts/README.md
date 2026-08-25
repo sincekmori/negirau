@@ -1,5 +1,7 @@
 # negirau
 
+[![npm version](https://img.shields.io/npm/v/negirau)](https://www.npmjs.com/package/negirau)
+
 Typed TypeScript client for the [Negirau](https://negirau.com) public API (read-only, anonymous, CORS-open).
 
 Hand-written around resource namespaces, a typed error hierarchy, and retries with exponential backoff — dependency-free, and kept honest by contract tests: they load the service's build-time-generated `openapi.json` and prove that every operation is covered, that requests only use spec-declared parameters, and that spec-conformant payloads satisfy the exported types.

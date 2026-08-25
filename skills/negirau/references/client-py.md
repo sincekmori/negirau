@@ -1,5 +1,7 @@
 # negirau
 
+[![PyPI version](https://img.shields.io/pypi/v/negirau)](https://pypi.org/project/negirau/)
+
 Python client for the [Negirau](https://negirau.com) public API (read-only, anonymous).
 
 Hand-written around resource namespaces, a `types` package, a typed exception hierarchy, and retries with exponential backoff — and kept honest by contract tests: they load the service's build-time-generated `openapi.json` and prove that every operation is covered, that requests only use spec-declared parameters, and that spec-conformant payloads parse into the models.

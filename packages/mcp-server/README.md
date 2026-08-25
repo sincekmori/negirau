@@ -1,5 +1,7 @@
 # negirau-mcp
 
+[![npm version](https://img.shields.io/npm/v/negirau-mcp)](https://www.npmjs.com/package/negirau-mcp)
+
 MCP (Model Context Protocol) server for the [Negirau](https://negirau.com) public API.
 
 Self-updating by construction: at startup it fetches `https://api.negirau.com/v1/openapi.json` and registers one tool per operation from the spec's `x-mcp-tool-name` / `x-agent-description` annotations.
