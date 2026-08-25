@@ -1,7 +1,4 @@
 // GET /subjects/:id/badge — the identity badge: {icon} Negirau | {subject.name}.
-// Query parameters are ignored, not rejected: badges live in other people's
-// pages, and the URLs already embedded out there (historically ?period=&lang=)
-// must keep resolving.
 
 import { appContext } from "~/lib/context";
 import { badgeResponse, renderBadgeSvg } from "~/lib/server/badge";
