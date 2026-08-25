@@ -15,6 +15,8 @@
 
 import { API_OPERATIONS } from "~/lib/api/manifest";
 
+import { SEED_SUBJECT } from "./seed/seed-subject";
+
 const baseUrl = (process.argv[2] ?? "http://localhost:4173").replace(/\/$/, "");
 const write = process.argv.includes("--write");
 
@@ -70,9 +72,13 @@ const CHECKS: Check[] = [
 		expect: okJson,
 	})),
 	{ name: "v1 openapi", path: "/v1/openapi.json", expect: okJson },
-	// A launch-seed name, over the 3-character trigram minimum, so the check
-	// exercises the FTS path and can actually hit on a freshly seeded instance.
-	{ name: "v1 search", path: "/v1/subjects?q=Claude&limit=5", expect: okJson },
+	// The shared seed identity, so the check exercises the FTS path and can
+	// actually hit on a freshly seeded instance without a hand-synced literal.
+	{
+		name: "v1 search",
+		path: `/v1/subjects?q=${encodeURIComponent(SEED_SUBJECT.name)}&limit=5`,
+		expect: okJson,
+	},
 	{
 		name: "robots",
 		path: "/robots.txt",
