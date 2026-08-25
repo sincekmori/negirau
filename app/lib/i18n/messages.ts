@@ -131,7 +131,7 @@ export interface Messages {
 	undoHint: string;
 	/** Announced to screen readers when a QR-triggered send lands. */
 	sentAnnounce: string;
-	/** Static invitation beside the picker when the week holds nothing yet. */
+	/** Static invitation beside the picker when nothing has been sent yet. */
 	reactionInvite: string;
 	shareButton: string;
 	shareNative: string;

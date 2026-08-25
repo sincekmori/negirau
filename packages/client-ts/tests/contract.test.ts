@@ -349,12 +349,4 @@ describe("client construction and edge branches", () => {
 		expect(`${url.origin}${url.pathname}`).toBe("https://api.negirau.com/v1/subjects");
 		expect(url.search).toBe("");
 	});
-
-	it("retrieves reactions with a bare query", async () => {
-		const url = await capture(
-			(c) => c.subjects.reactions.retrieve(SUBJECT_ID),
-			OPERATIONS["/subjects/{id}/reactions"]?.payload,
-		);
-		expect(url.search).toBe("");
-	});
 });

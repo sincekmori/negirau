@@ -81,7 +81,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
 			lng: subject.lng,
 			listed: subject.listed === 1,
 		},
-		counts: { byType },
+		countsByType: byType,
 		turnstileSiteKey: env.TURNSTILE_SITE_KEY,
 	};
 }
@@ -121,7 +121,7 @@ function SubjectLocation({
 }
 
 export default function Subject({ loaderData }: Route.ComponentProps) {
-	const { locale, origin, subject, counts, turnstileSiteKey } = loaderData;
+	const { locale, origin, subject, countsByType, turnstileSiteKey } = loaderData;
 	const m = messages(locale);
 
 	const turnstileHost = useRef<HTMLDivElement>(null);
@@ -250,7 +250,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 	}
 
 	function countOf(type: ReactionType): number {
-		return (counts.byType[type] ?? 0) + (delta[type] ?? 0);
+		return (countsByType[type] ?? 0) + (delta[type] ?? 0);
 	}
 	// A chip exists once the subject holds that reaction (or I sent it just now);
 	// everything else waits inside the picker.
@@ -260,7 +260,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 	// One flag for "controls may act": hydrated and not mid-request.
 	const busy = !ready || sending;
 
-	const description = totalHeadline(m, total === 0 ? undefined : displayValue(total));
+	const description = totalHeadline(m, total);
 	// QR encoding is the priciest pure computation in this component; only the
 	// picked type changes it, not every reaction-count rerender.
 	const qrSvg = useMemo(() => sendQrSvg(origin, subject.id, qrType), [origin, subject.id, qrType]);

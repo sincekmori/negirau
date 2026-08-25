@@ -23,15 +23,16 @@ CREATE INDEX idx_subjects_name ON subjects (name) WHERE status = 'active' AND li
 -- the write path and keeps every operator query bounded.
 CREATE INDEX idx_subjects_removed ON subjects (rowid) WHERE status = 'removed';
 
--- Daily reaction counters. Day granularity enables period aggregation and
--- surgical rollback of an attacked day. One reaction = one UPSERT.
+-- Daily reaction counters. Every surface shows the all-time sum; the day
+-- granularity exists for the surgical rollback of an attacked day.
+-- One reaction = one UPSERT.
 CREATE TABLE reaction_counts (
   -- CASCADE, not a hand-written multi-table delete: `ops purge` removes a
   -- subject for real, and SQLite reuses a freed rowid, so a counter left
   -- behind would resurface as some later subject's reactions.
   subject_rowid INTEGER NOT NULL REFERENCES subjects(rowid) ON DELETE CASCADE,
   type TEXT NOT NULL,
-  day TEXT NOT NULL,             -- ISO date, UTC day boundary (see app/lib/period.ts)
+  day TEXT NOT NULL,             -- ISO date, UTC day boundary (see app/lib/dates.ts)
   count INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (subject_rowid, type, day)
 );

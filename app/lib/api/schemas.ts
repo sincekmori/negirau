@@ -64,7 +64,7 @@ export const nearListResponseSchema = z.object({
 
 export const reactionsResponseSchema = z.object({
 	id: z.string(),
-	total: displayValueSchema.describe("All-time total"),
+	total: displayValueSchema,
 	by_type: z.record(z.string(), displayValueSchema),
 });
 

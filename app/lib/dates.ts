@@ -1,8 +1,4 @@
-/**
- * UTC date helpers for the daily counters and the feed's entry cadence.
- * Aggregation windows used to live here too; every public surface now sums
- * all time, so only the day key and the ISO-week id remain.
- */
+/** UTC calendar helpers: the counters' day key and the ISO-week id. */
 
 /** ISO date in UTC — the reaction counters' day key. */
 export type IsoDate = string; // '2026-08-14'
@@ -21,7 +17,7 @@ function addDays(date: Date, days: number): Date {
 	return out;
 }
 
-/** ISO-week id like '2026-W33' — the feed's entry cadence, nothing more. */
+/** ISO-week id like '2026-W33'. */
 export function isoWeekId(date: Date): string {
 	// ISO week number: the week containing the year's first Thursday is week 1.
 	const day = utcMidnight(date);

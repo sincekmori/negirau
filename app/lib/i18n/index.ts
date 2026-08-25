@@ -1,3 +1,5 @@
+import { displayValue } from "~/lib/display-value";
+
 import { en } from "./en";
 import { ja } from "./ja";
 import type { Locale, Messages } from "./messages";
@@ -7,14 +9,15 @@ export type { Locale, Messages } from "./messages";
 
 /**
  * The one place the all-time headline sentence is composed — page markup, the
- * og:description, the OG image, and the feed all derive from the same parts.
+ * og:description, the OG image, and the feed all derive from the same parts,
+ * including the zero case and the display-value cap.
  */
-export function totalHeadline(m: Messages, totalValue: string | undefined): string {
-	if (totalValue === undefined) {
+export function totalHeadline(m: Messages, total: number): string {
+	if (total === 0) {
 		return m.totalHeadlineEmpty;
 	}
 	const { before, after } = m.totalHeadlineParts;
-	return `${before}${totalValue}${after}`;
+	return `${before}${displayValue(total)}${after}`;
 }
 
 const CATALOG: Record<Locale, Messages> = { ja, en };

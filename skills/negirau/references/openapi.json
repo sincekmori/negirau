@@ -354,7 +354,7 @@
                     },
                     "total": {
                       "type": "string",
-                      "description": "All-time total"
+                      "description": "Display value: the exact count up to 100, \"100+\" beyond"
                     },
                     "by_type": {
                       "type": "object",

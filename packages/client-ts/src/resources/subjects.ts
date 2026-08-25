@@ -21,7 +21,7 @@ export class Reactions {
 
 	/** All-time reaction display values for a subject. */
 	retrieve(id: string): Promise<ReactionsSummary> {
-		return get(this.#transport, `/subjects/${encodeURIComponent(id)}/reactions`, {});
+		return get(this.#transport, `/subjects/${encodeURIComponent(id)}/reactions`);
 	}
 }
 
