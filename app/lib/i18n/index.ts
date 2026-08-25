@@ -6,14 +6,14 @@ export { LOCALES } from "./messages";
 export type { Locale, Messages } from "./messages";
 
 /**
- * The one place the weekly headline sentence is composed — page markup, the
+ * The one place the all-time headline sentence is composed — page markup, the
  * og:description, the OG image, and the feed all derive from the same parts.
  */
-export function weeklyHeadline(m: Messages, totalValue: string | undefined): string {
+export function totalHeadline(m: Messages, totalValue: string | undefined): string {
 	if (totalValue === undefined) {
-		return m.weeklyHeadlineEmpty;
+		return m.totalHeadlineEmpty;
 	}
-	const { before, after } = m.weeklyHeadlineParts;
+	const { before, after } = m.totalHeadlineParts;
 	return `${before}${totalValue}${after}`;
 }
 

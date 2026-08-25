@@ -3,7 +3,6 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { toIsoDate } from "~/lib/period";
 import { countsSummary } from "~/lib/server/db";
 import type { SubjectRow } from "~/lib/server/db";
 import { handleReact, handleUndo } from "~/lib/server/react";
@@ -19,10 +18,9 @@ function mockSiteverify(success: boolean): void {
 }
 
 const deps = { env, clientIp: "203.0.113.7" };
-const today = () => toIsoDate(new Date());
 
 async function todayByType(subjectRowid: number): Promise<Record<string, number>> {
-	const summary = await countsSummary(env.DB, subjectRowid, { start: today(), end: today() });
+	const summary = await countsSummary(env.DB, subjectRowid);
 	return summary.byType;
 }
 

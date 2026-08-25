@@ -78,8 +78,8 @@ export const en: Messages = {
 	nearbyPositionFailed: "Could not get your location. Please check location permissions.",
 	nearbyNoHits: "No subjects found nearby.",
 
-	weeklyHeadlineEmpty: "Light the first appreciation?",
-	weeklyHeadlineParts: { before: "", after: " appreciations arrived this week" },
+	totalHeadlineEmpty: "Light the first appreciation?",
+	totalHeadlineParts: { before: "", after: " appreciations so far" },
 	reactionLabels: {
 		like: "Like",
 		heart: "Heart",

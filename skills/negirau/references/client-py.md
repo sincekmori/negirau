@@ -24,11 +24,8 @@ for subject in found.subjects:
 
 nearby = client.subjects.list_near(35.64, 139.65, radius=3000)
 
-reactions = client.subjects.reactions.retrieve(
-    "0e6f9b3a-6b1e-4b8a-9a6a-1c2d3e4f5a6b",
-    period="2026-W33",  # or a month ("2026-08"), a year ("2026"), or "all"
-)
-print(reactions.total)  # a display value: exact up to 100, "100+" beyond
+reactions = client.subjects.reactions.retrieve("0e6f9b3a-6b1e-4b8a-9a6a-1c2d3e4f5a6b")
+print(reactions.total)  # the all-time display value: exact up to 100, "100+" beyond
 ```
 
 Async:

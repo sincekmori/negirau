@@ -1,7 +1,7 @@
 // Device-local send log: one entry per subject, type, and day. Purely a UX
 // hint (the server cookie is the enforced layer) — losing it costs nothing.
 
-import { toIsoDate } from "~/lib/period";
+import { toIsoDate } from "~/lib/dates";
 
 /** Exported for the e2e specs, which seed entries exactly as this module writes them. */
 export function sentLogKey(id: string, type: string): string {

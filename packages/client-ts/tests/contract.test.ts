@@ -97,11 +97,10 @@ const OPERATIONS: Record<
 	"/subjects/{id}/reactions": {
 		payload: {
 			id: SUBJECT_ID,
-			period: "2026-W33",
 			total: "100+",
 			by_type: { heart: "80", like: "40" },
 		} satisfies ReactionsSummary,
-		calls: [(c) => c.subjects.reactions.retrieve(SUBJECT_ID, { period: "2026-W33" })],
+		calls: [(c) => c.subjects.reactions.retrieve(SUBJECT_ID)],
 	},
 };
 
@@ -351,7 +350,7 @@ describe("client construction and edge branches", () => {
 		expect(url.search).toBe("");
 	});
 
-	it("retrieves reactions without a period parameter", async () => {
+	it("retrieves reactions with a bare query", async () => {
 		const url = await capture(
 			(c) => c.subjects.reactions.retrieve(SUBJECT_ID),
 			OPERATIONS["/subjects/{id}/reactions"]?.payload,

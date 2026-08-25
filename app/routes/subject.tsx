@@ -20,8 +20,7 @@ import {
 } from "~/lib/components/ui/dropdown-menu";
 import { appContext } from "~/lib/context";
 import { clampForDisplay, displayValue } from "~/lib/display-value";
-import { messages, weeklyHeadline } from "~/lib/i18n";
-import { weekRange } from "~/lib/period";
+import { messages, totalHeadline } from "~/lib/i18n";
 import {
 	DEFAULT_REACTION,
 	REACTION_EMOJI,
@@ -64,7 +63,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 export async function loader({ params, request, context }: Route.LoaderArgs) {
 	const { env, locale } = context.get(appContext);
 	const subject = await loadActiveSubject(env.DB, params.id);
-	const summary = await countsSummary(env.DB, subject.rowid, weekRange(new Date()));
+	const summary = await countsSummary(env.DB, subject.rowid);
 	// Clamped before it leaves the worker: loader data is serialised into the
 	// page HTML, so a raw sum here would publish the exact count.
 	const byType = Object.fromEntries(
@@ -82,7 +81,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
 			lng: subject.lng,
 			listed: subject.listed === 1,
 		},
-		weekly: { byType },
+		counts: { byType },
 		turnstileSiteKey: env.TURNSTILE_SITE_KEY,
 	};
 }
@@ -122,7 +121,7 @@ function SubjectLocation({
 }
 
 export default function Subject({ loaderData }: Route.ComponentProps) {
-	const { locale, origin, subject, weekly, turnstileSiteKey } = loaderData;
+	const { locale, origin, subject, counts, turnstileSiteKey } = loaderData;
 	const m = messages(locale);
 
 	const turnstileHost = useRef<HTMLDivElement>(null);
@@ -133,7 +132,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 	const [ready, setReady] = useState(false);
 	const [sentTypes, setSentTypes] = useState<ReactionType[]>([]);
 	// Optimistic count deltas: +1 on a send, -1 on its undo, on top of the
-	// server-rendered weekly counts.
+	// server-rendered all-time counts.
 	const [delta, setDelta] = useState<Partial<Record<ReactionType, number>>>({});
 	const [sending, setSending] = useState(false);
 	// One state, because it is one thing: the live undo affordance. Split
@@ -251,17 +250,17 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 	}
 
 	function countOf(type: ReactionType): number {
-		return (weekly.byType[type] ?? 0) + (delta[type] ?? 0);
+		return (counts.byType[type] ?? 0) + (delta[type] ?? 0);
 	}
-	// A chip exists once the week holds that reaction (or I sent it just now);
+	// A chip exists once the subject holds that reaction (or I sent it just now);
 	// everything else waits inside the picker.
 	const chipTypes = REACTION_TYPES.filter((type) => countOf(type) > 0 || sentTypes.includes(type));
 	const pickerTypes = REACTION_TYPES.filter((type) => !chipTypes.includes(type));
-	const weeklyTotal = REACTION_TYPES.reduce((sum, type) => sum + countOf(type), 0);
+	const total = REACTION_TYPES.reduce((sum, type) => sum + countOf(type), 0);
 	// One flag for "controls may act": hydrated and not mid-request.
 	const busy = !ready || sending;
 
-	const description = weeklyHeadline(m, weeklyTotal === 0 ? undefined : displayValue(weeklyTotal));
+	const description = totalHeadline(m, total === 0 ? undefined : displayValue(total));
 	// QR encoding is the priciest pure computation in this component; only the
 	// picked type changes it, not every reaction-count rerender.
 	const qrSvg = useMemo(() => sendQrSvg(origin, subject.id, qrType), [origin, subject.id, qrType]);
@@ -295,7 +294,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 				<SubjectLocation subject={subject} label={m.subjectMapLabel} />
 
 				{/* Chat-style reactions, right under the name like reactions under a
-				    message: chips for what this week already holds, a picker for the
+				    message: chips for what the subject already holds, a picker for the
 				    rest. A pressed chip taps back off while its undo voucher lives —
 				    no text, the chip itself is the feedback. */}
 				<section className="mt-6 flex flex-wrap items-center gap-2">
@@ -345,7 +344,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 							</DropdownMenuContent>
 						</DropdownMenu>
 					)}
-					{/* Empty week: a static invitation beside the picker, so a first
+					{/* Nothing yet: a static invitation beside the picker, so a first
 					    visitor knows what the button is for. It leaves once anything
 					    is sent — a state change, not ephemeral feedback. */}
 					{chipTypes.length === 0 && (

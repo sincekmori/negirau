@@ -82,8 +82,8 @@ export const ja: Messages = {
 	nearbyPositionFailed: "現在地を取得できませんでした。位置情報の許可をご確認ください。",
 	nearbyNoHits: "近くに届け先が見つかりませんでした。",
 
-	weeklyHeadlineEmpty: "最初のねぎらいを灯しませんか?",
-	weeklyHeadlineParts: { before: "今週、", after: " 件のねぎらいが届きました" },
+	totalHeadlineEmpty: "最初のねぎらいを灯しませんか?",
+	totalHeadlineParts: { before: "これまでに ", after: " 件のねぎらいが届きました" },
 	reactionLabels: {
 		like: "いいね",
 		heart: "ハート",

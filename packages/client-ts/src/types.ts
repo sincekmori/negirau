@@ -5,7 +5,7 @@
 /** Display value — the only count representation the API ever exposes: exact up to 100, "100+" beyond. */
 export type DisplayValue = string;
 
-/** A recipient of appreciation — a name, optionally with a location and an active period. */
+/** A recipient of appreciation — a name, optionally with a location. */
 export interface Subject {
 	/** Public identifier; the page URL is https://negirau.com/subjects/{id}. */
 	id: string;
@@ -33,11 +33,9 @@ export interface SubjectListParams {
 	cursor?: string;
 }
 
-/** Reaction display values for one subject over a period. */
+/** All-time reaction display values for one subject. */
 export interface ReactionsSummary {
 	id: string;
-	/** The aggregation period as requested ('2026-W33', '2026-08', '2026', or 'all'). */
-	period: string;
 	total: DisplayValue;
 	by_type: Record<string, DisplayValue>;
 }

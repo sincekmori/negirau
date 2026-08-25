@@ -62,18 +62,15 @@ describe("listSubjectsNear", () => {
 });
 
 describe("reaction counters", () => {
-	it("aggregates by period and by type", async () => {
+	it("sums all days by type", async () => {
 		const subject = await seedSubject("counted", 35.6, 139.65);
 		await recordReaction(env.DB, subject.rowid, "heart", "2026-08-10");
 		await recordReaction(env.DB, subject.rowid, "heart", "2026-08-10");
 		await recordReaction(env.DB, subject.rowid, "like", "2026-07-01");
-		const week = await countsSummary(env.DB, subject.rowid, {
-			start: "2026-08-10",
-			end: "2026-08-16",
+		expect(await countsSummary(env.DB, subject.rowid)).toEqual({
+			total: 3,
+			byType: { heart: 2, like: 1 },
 		});
-		expect(week).toEqual({ total: 2, byType: { heart: 2 } });
-		const allTime = await countsSummary(env.DB, subject.rowid, null);
-		expect(allTime).toEqual({ total: 3, byType: { heart: 2, like: 1 } });
 	});
 });
 

@@ -19,11 +19,9 @@ export class Reactions {
 		this.#transport = transport;
 	}
 
-	/** Reaction display values for a subject; `period` is an ISO week (2026-W33), month (2026-08), year (2026), or 'all'. */
-	retrieve(id: string, params: { period?: string } = {}): Promise<ReactionsSummary> {
-		return get(this.#transport, `/subjects/${encodeURIComponent(id)}/reactions`, {
-			period: params.period,
-		});
+	/** All-time reaction display values for a subject. */
+	retrieve(id: string): Promise<ReactionsSummary> {
+		return get(this.#transport, `/subjects/${encodeURIComponent(id)}/reactions`, {});
 	}
 }
 
