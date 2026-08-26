@@ -42,7 +42,7 @@ SUBJECT_ID = "0e6f9b3a-6b1e-4b8a-9a6a-1c2d3e4f5a6b"
 
 SUBJECT_SAMPLE = {
     "id": SUBJECT_ID,
-    "name": "世田谷消防署",
+    "name": "Setagaya Central Library",
     "lat": 35.6466,
     "lng": 139.6532,
 }
@@ -51,7 +51,7 @@ SUBJECT_SAMPLE = {
 # variant is first-class, so the parsing path must be pinned too.
 NAME_ONLY_SAMPLE = {
     "id": "6f1d2c3b-4a59-4e6f-8a7b-9c0d1e2f3a4b",
-    "name": "山田 太郎",
+    "name": "Taro Yamada",
     "lat": None,
     "lng": None,
 }
@@ -65,7 +65,7 @@ OPERATIONS = {
             "next_cursor": None,
         },
         "calls": [
-            lambda c: c.subjects.list(q="消防署", limit=5),
+            lambda c: c.subjects.list(q="library", limit=5),
             lambda c: c.subjects.list(cursor="abc"),
         ],
     },
@@ -272,7 +272,7 @@ async def test_async_client_mirrors_the_sync_surface():
         return httpx.Response(200, json=payloads[request.url.path])
 
     async with async_client_for(handler) as client:
-        page = await client.subjects.list(q="消防署")
+        page = await client.subjects.list(q="library")
         assert page.subjects[0].id == SUBJECT_SAMPLE["id"]
         nearby = await client.subjects.list_near(35.6, 139.65, radius=3000)
         assert nearby[0].distance_m == 1808

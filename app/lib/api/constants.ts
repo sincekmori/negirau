@@ -7,7 +7,7 @@
 /** The public API lives under this prefix; a breaking v2 would be added beside it. */
 export const ROUTE_PREFIX = "/v1";
 
-/** Example search used across docs and smoke checks (long enough for the trigram path). */
+/** Example search used across the generated docs (long enough for the trigram path). */
 export const EXAMPLE_QUERY = "library";
 
 /**

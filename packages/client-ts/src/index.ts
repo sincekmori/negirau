@@ -55,7 +55,7 @@ export interface NegirauOptions {
  * ```ts
  * import { Negirau } from "negirau";
  * const client = new Negirau();
- * const page = await client.subjects.list({ q: "消防" });
+ * const page = await client.subjects.list({ q: "library" });
  * ```
  */
 export class Negirau {
