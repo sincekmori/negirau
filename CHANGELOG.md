@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.3.0](https://github.com/sincekmori/negirau/compare/v0.2.0...v0.3.0) (2026-08-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* sum all time everywhere — the period concept leaves the public API (no parameter, no response field), the subject page, the OG card, and the feed, whose one entry now rolls with the ISO week while carrying the all-time values; period.ts shrinks to dates.ts with the day key and the week id, and countsSummary loses its range because there is only one aggregation left to ask for
+
+### Features
+
+* grow the subject page's send QR ([a7d5604](https://github.com/sincekmori/negirau/commit/a7d56040569412c9278d8cf25781b2e9f76e6644))
+* grow the subject page's send QR from 112px to 144px and let it own the card width, so a shared screen scans from further across the room ([d7a23ec](https://github.com/sincekmori/negirau/commit/d7a23ecbe0630495eed13e24ea27f331e1a35d64))
+* redesign the badge as a count-free identity mark ([0ef18e5](https://github.com/sincekmori/negirau/commit/0ef18e551f923ce196a772316b86eb10814c632f))
+* redesign the badge as a count-free identity mark — {icon} Negirau | {subject.name} — because an embedded number goes stale in third-party caches and never said whose badge it was; the period and lang parameters lose their meaning and are ignored rather than rejected so URLs already embedded elsewhere keep resolving ([09d70b5](https://github.com/sincekmori/negirau/commit/09d70b5672e00f014e2636a547667ea8404f31fc))
+* sum all time everywhere — the period concept leaves the public API (no parameter, no response field), the subject page, the OG card, and the feed, whose one entry now rolls with the ISO week while carrying the all-time values; period.ts shrinks to dates.ts with the day key and the week id, and countsSummary loses its range because there is only one aggregation left to ask for ([17f5aca](https://github.com/sincekmori/negirau/commit/17f5acad140997d80cd03dd00f4843b0d4496782))
+
+
+### Bug Fixes
+
+* speak English in every code example ([9036b0f](https://github.com/sincekmori/negirau/commit/9036b0fd7b8c5290adbd1f7fd76ea7093a4ef308))
+* speak English in every code example — the clients' docs, docstrings, contract-test samples, and the smoke search all standardise on the library example, while the Japanese that stays is the UI copy and the FTS test data whose whole point is being Japanese ([30e6d8b](https://github.com/sincekmori/negirau/commit/30e6d8b0fe76c3879a461064271ab2298f2b0189))
+
 ## [0.2.0](https://github.com/sincekmori/negirau/compare/v0.1.1...v0.2.0) (2026-08-22)
 
 
