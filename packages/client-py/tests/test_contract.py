@@ -76,13 +76,10 @@ OPERATIONS = {
     "/subjects/{id}/reactions": {
         "payload": {
             "id": SUBJECT_ID,
-            "period": "2026-W33",
             "total": "100+",
             "by_type": {"heart": "80", "like": "40"},
         },
-        "calls": [
-            lambda c: c.subjects.reactions.retrieve(SUBJECT_ID, period="2026-W33")
-        ],
+        "calls": [lambda c: c.subjects.reactions.retrieve(SUBJECT_ID)],
     },
 }
 

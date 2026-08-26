@@ -11,7 +11,7 @@
 
 import * as z from "zod";
 
-import { toIsoDate } from "~/lib/period";
+import { toIsoDate } from "~/lib/dates";
 import { REACTION_TYPES } from "~/lib/reactions";
 import { getActiveSubject, recordReaction, revokeReaction } from "~/lib/server/db";
 import { rateLimitKeyForIp, refuseAnonymousWrite, underLimit } from "~/lib/server/rate-limit";

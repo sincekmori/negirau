@@ -3,7 +3,6 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { toIsoDate } from "~/lib/period";
 import { countsSummary } from "~/lib/server/db";
 import type { SubjectRow } from "~/lib/server/db";
 import { handleReact, handleUndo } from "~/lib/server/react";
@@ -19,10 +18,9 @@ function mockSiteverify(success: boolean): void {
 }
 
 const deps = { env, clientIp: "203.0.113.7" };
-const today = () => toIsoDate(new Date());
 
-async function todayByType(subjectRowid: number): Promise<Record<string, number>> {
-	const summary = await countsSummary(env.DB, subjectRowid, { start: today(), end: today() });
+async function recordedByType(subjectRowid: number): Promise<Record<string, number>> {
+	const summary = await countsSummary(env.DB, subjectRowid);
 	return summary.byType;
 }
 
@@ -44,7 +42,7 @@ describe("handleReact", () => {
 		mockSiteverify(true);
 		const result = await handleReact(deps, subject.id, { type: "heart", token: "tok" });
 		expect(result).toMatchObject({ ok: true });
-		expect(await todayByType(subject.rowid)).toEqual({ heart: 1 });
+		expect(await recordedByType(subject.rowid)).toEqual({ heart: 1 });
 	});
 
 	it("rejects when Turnstile verification fails", async () => {
@@ -66,7 +64,7 @@ describe("handleReact", () => {
 			.run();
 		const result = await handleReact(deps, subject.id, { type: "heart", token: "tok" });
 		expect(result).toMatchObject({ ok: false, status: 404 });
-		expect(await todayByType(subject.rowid)).toEqual({});
+		expect(await recordedByType(subject.rowid)).toEqual({});
 	});
 
 	it("honors the kill switch without touching Turnstile", async () => {
@@ -98,7 +96,7 @@ describe("handleUndo", () => {
 			undo_token: sent.undo_token,
 		});
 		expect(undone.ok).toBe(true);
-		expect(await todayByType(subject.rowid)).toEqual({});
+		expect(await recordedByType(subject.rowid)).toEqual({});
 	});
 
 	it("rejects forged tokens", async () => {
@@ -140,6 +138,6 @@ describe("handleUndo", () => {
 		});
 		expect(result).toMatchObject({ ok: false, status: 403 });
 		// The genuine day is untouched.
-		expect(await todayByType(subject.rowid)).toEqual({ heart: 1 });
+		expect(await recordedByType(subject.rowid)).toEqual({ heart: 1 });
 	});
 });

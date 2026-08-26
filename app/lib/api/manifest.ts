@@ -12,7 +12,6 @@ import * as z from "zod";
 import { ROUTE_PREFIX } from "~/lib/api/constants";
 import {
 	nearListResponseSchema,
-	reactionsQuerySchema,
 	reactionsResponseSchema,
 	subjectListQuerySchema,
 	subjectListResponseSchema,
@@ -71,15 +70,14 @@ export const API_OPERATIONS: ApiOperation[] = [
 		operationId: "getSubjectReactions",
 		method: "get",
 		path: "/v1/subjects/{id}/reactions",
-		summary: "Reaction display values for a period",
+		summary: "Reaction display values",
 		description:
-			'Total and per-type reaction display values for one subject over a period (week, month, year, or all time). Values are exact up to 100 and capped at "100+" beyond.',
+			'All-time total and per-type reaction display values for one subject. Values are exact up to 100 and capped at "100+" beyond.',
 		pathParams: { id: { description: "Public subject identifier" } },
-		query: reactionsQuerySchema,
 		response: reactionsResponseSchema,
 		notFoundDescription: "No active subject has this identifier.",
 		xMcpToolName: "negirau_get_reactions",
-		xAgentDescription: "Reaction display values for a Negirau subject over a period.",
+		xAgentDescription: "All-time reaction display values for a Negirau subject.",
 	},
 ];
 

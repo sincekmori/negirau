@@ -55,11 +55,11 @@ Base URL `{API}` — read-only `GET`, anonymous, no key, CORS-open, JSON.
 curl "{API}/subjects?q=library&limit=5"
 ```
 
-| Operation                      | What it does                         |
-| ------------------------------ | ------------------------------------ |
-| `GET /subjects`                | List and search subjects             |
-| `GET /subjects/{id}`           | Get one subject                      |
-| `GET /subjects/{id}/reactions` | Reaction display values for a period |
+| Operation                      | What it does             |
+| ------------------------------ | ------------------------ |
+| `GET /subjects`                | List and search subjects |
+| `GET /subjects/{id}`           | Get one subject          |
+| `GET /subjects/{id}/reactions` | Reaction display values  |
 
 For request/response shapes, read [references/openapi.json](references/openapi.json) (snapshot).
 When the network is available prefer the live contract — it is always current even when this skill is stale:
@@ -139,7 +139,6 @@ Assemble it like this:
 - There are no bulk dumps (deliberately: they invited rankings and broke at national scale); enumerate via `q`/filters + cursor pagination, and never assemble count leaderboards from per-subject reads.
 - `q` works from 1 character: 1-2 characters match as a name prefix (single page), 3+ as a substring (trigram index width); not fuzzy.
 - Link-only subjects never appear in search or listings; `GET {API}/subjects/{id}` still resolves them, so a subject you cannot find may still exist — ask the human for its URL instead of concluding it is missing.
-- Reaction aggregation accepts an ISO week (`period=2026-W33`), a month (`2026-08`), a year (`2026`), or `all`.
 - Writes are rate-limited per IP and per subject; abusive days can be rolled back server-side, so a display value may occasionally go down.
 - The reaction POST endpoint is first-party and absent from openapi.json on purpose — that absence is not an omission to report.
 - UI languages are English and Japanese only; the API itself is language-neutral.

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class Subject(BaseModel):
-    """A recipient of appreciation — a name, optionally with a location and a period."""
+    """A recipient of appreciation — a name, optionally with a location."""
 
     id: str
     name: str

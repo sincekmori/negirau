@@ -7,9 +7,8 @@ from negirau.types.display_value import DisplayValue
 
 
 class ReactionsSummary(BaseModel):
-    """Reaction display values for one subject over a period."""
+    """All-time reaction display values for one subject."""
 
     id: str
-    period: str
     total: DisplayValue
     by_type: dict[str, DisplayValue]

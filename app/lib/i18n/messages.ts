@@ -117,13 +117,13 @@ export interface Messages {
 
 	// Subject page
 	/** Headline when nothing has been sent yet. */
-	weeklyHeadlineEmpty: string;
+	totalHeadlineEmpty: string;
 	/**
 	 * The headline, split around the highlighted value so markup can
 	 * emphasize it. The plain-string form is derived once in ~/lib/i18n's
-	 * weeklyHeadline() — never spell the sentence out a second time.
+	 * totalHeadline() — never spell the sentence out a second time.
 	 */
-	weeklyHeadlineParts: { before: string; after: string };
+	totalHeadlineParts: { before: string; after: string };
 	/** Accessible names for the emoji buttons (a11y), never visible captions. */
 	reactionLabels: Record<ReactionType, string>;
 	addReaction: string;
@@ -131,7 +131,7 @@ export interface Messages {
 	undoHint: string;
 	/** Announced to screen readers when a QR-triggered send lands. */
 	sentAnnounce: string;
-	/** Static invitation beside the picker when the week holds nothing yet. */
+	/** Static invitation beside the picker when nothing has been sent yet. */
 	reactionInvite: string;
 	shareButton: string;
 	shareNative: string;

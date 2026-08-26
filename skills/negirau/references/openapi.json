@@ -326,10 +326,10 @@
     "/subjects/{id}/reactions": {
       "get": {
         "operationId": "getSubjectReactions",
-        "summary": "Reaction display values for a period",
-        "description": "Total and per-type reaction display values for one subject over a period (week, month, year, or all time). Values are exact up to 100 and capped at \"100+\" beyond.",
+        "summary": "Reaction display values",
+        "description": "All-time total and per-type reaction display values for one subject. Values are exact up to 100 and capped at \"100+\" beyond.",
         "x-mcp-tool-name": "negirau_get_reactions",
-        "x-agent-description": "Reaction display values for a Negirau subject over a period.",
+        "x-agent-description": "All-time reaction display values for a Negirau subject.",
         "parameters": [
           {
             "name": "id",
@@ -337,16 +337,6 @@
             "required": true,
             "description": "Public subject identifier",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "period",
-            "in": "query",
-            "required": false,
-            "description": "Aggregation period: ISO week ('2026-W33'), month ('2026-08'), year ('2026'), or 'all'. Default: 'all'",
-            "schema": {
-              "description": "Aggregation period: ISO week ('2026-W33'), month ('2026-08'), year ('2026'), or 'all'. Default: 'all'",
               "type": "string"
             }
           }
@@ -361,10 +351,6 @@
                   "properties": {
                     "id": {
                       "type": "string"
-                    },
-                    "period": {
-                      "type": "string",
-                      "description": "The aggregation period as requested ('2026-W33', '2026-08', '2026', or 'all')"
                     },
                     "total": {
                       "type": "string",
@@ -383,28 +369,8 @@
                   },
                   "required": [
                     "id",
-                    "period",
                     "total",
                     "by_type"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid query or cursor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "error"
                   ],
                   "additionalProperties": false
                 }

@@ -91,7 +91,7 @@ export async function ogCardResponse(
 	// rename usually leaves the headline untouched, and a card showing the old
 	// name would otherwise be served for the rest of its 24h lifetime. An operator-set subject id "site" cannot collide with the site
 	// card either: only /og/site passes an empty headline, and a subject
-	// headline is never empty (weeklyHeadline always returns a sentence).
+	// headline is never empty (totalHeadline always returns a sentence).
 	const cacheKey = new Request(
 		`https://og-cache.invalid/${encodeURIComponent(cacheId)}?n=${encodeURIComponent(name)}&b=${encodeURIComponent(headline)}&v=${OG_TEMPLATE_VERSION}`,
 	);

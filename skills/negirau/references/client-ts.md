@@ -25,10 +25,8 @@ for (const subject of found.subjects) {
 
 const nearby = await client.subjects.listNear(35.64, 139.65, { radius: 3000 });
 
-const reactions = await client.subjects.reactions.retrieve("0e6f9b3a-6b1e-4b8a-9a6a-1c2d3e4f5a6b", {
-  period: "2026-W33", // or a month ("2026-08"), a year ("2026"), or "all"
-});
-console.log(reactions.total); // a display value: exact up to 100, "100+" beyond
+const reactions = await client.subjects.reactions.retrieve("0e6f9b3a-6b1e-4b8a-9a6a-1c2d3e4f5a6b");
+console.log(reactions.total); // the all-time display value: exact up to 100, "100+" beyond
 ```
 
 Errors and retries:

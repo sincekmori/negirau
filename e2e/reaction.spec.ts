@@ -1,5 +1,5 @@
 // The core loop, chat-style: pick an emoji from the picker, undo from the
-// toast, chips carry the weekly counts, and the per-type-per-day guards hold.
+// toast, chips carry the all-time counts, and the per-type-per-day guards hold.
 // Tests that record a reaction undo it, so the local D1 counts stay put.
 
 import type { Page } from "@playwright/test";
@@ -19,7 +19,7 @@ const HEART_PICK = '[role="menuitem"][data-reaction="heart"]';
 const SENT_CHIP = 'button[data-reaction][aria-pressed="true"]';
 
 /**
- * Send a heart the way a visitor would: tap its chip when this week already
+ * Send a heart the way a visitor would: tap its chip when the subject already
  * has hearts, otherwise pick it from the emoji picker. Controls are disabled
  * until hydration, so waiting for an enabled control replaces retry loops.
  */

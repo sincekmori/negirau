@@ -39,17 +39,9 @@ class Reactions:
         """Bind to the owning client."""
         self._client = client
 
-    def retrieve(
-        self, subject_id: str, *, period: str | None = None
-    ) -> ReactionsSummary:
-        """Reaction display values for a subject.
-
-        ``period`` is an ISO week (``2026-W33``), month (``2026-08``),
-        year (``2026``), or ``all`` (default: ``all``).
-        """
-        payload = self._client.get(
-            _subject_path(subject_id, "/reactions"), {"period": period}
-        )
+    def retrieve(self, subject_id: str) -> ReactionsSummary:
+        """All-time reaction display values for a subject."""
+        payload = self._client.get(_subject_path(subject_id, "/reactions"), {})
         return ReactionsSummary.model_validate(payload)
 
 
@@ -106,17 +98,9 @@ class AsyncReactions:
         """Bind to the owning client."""
         self._client = client
 
-    async def retrieve(
-        self, subject_id: str, *, period: str | None = None
-    ) -> ReactionsSummary:
-        """Reaction display values for a subject.
-
-        ``period`` is an ISO week (``2026-W33``), month (``2026-08``),
-        year (``2026``), or ``all`` (default: ``all``).
-        """
-        payload = await self._client.get(
-            _subject_path(subject_id, "/reactions"), {"period": period}
-        )
+    async def retrieve(self, subject_id: str) -> ReactionsSummary:
+        """All-time reaction display values for a subject."""
+        payload = await self._client.get(_subject_path(subject_id, "/reactions"), {})
         return ReactionsSummary.model_validate(payload)
 
 

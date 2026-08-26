@@ -9,7 +9,6 @@
 
 import { boundingBoxAround, haversineMeters } from "~/lib/geo";
 import { coveringCells, encodeGeohash } from "~/lib/geohash";
-import type { DayRange, Period } from "~/lib/period";
 
 // Only the columns any caller reads: status is pinned by each query's own
 // predicate, geohash and created_at have no readers outside this module.
@@ -292,43 +291,14 @@ export interface CountsSummary {
 	byType: Record<string, number>;
 }
 
-/**
- * Raw daily counters over one contiguous range — callers bucket in JS. One
- * statement replaces per-week round trips (same rows scanned via the PK).
- */
-export async function countsByDay(
-	db: D1Database,
-	subjectRowid: number,
-	range: DayRange,
-): Promise<{ type: string; day: string; count: number }[]> {
-	const { results } = await db
-		.prepare(
-			`SELECT type, day, count FROM reaction_counts
-			 WHERE subject_rowid = ? AND day BETWEEN ? AND ?`,
-		)
-		.bind(subjectRowid, range.start, range.end)
-		.all<{ type: string; day: string; count: number }>();
-	return results;
-}
-
-/** Sum the daily counters over a period (null = all time). */
-export async function countsSummary(
-	db: D1Database,
-	subjectRowid: number,
-	period: Period,
-): Promise<CountsSummary> {
-	const conditions = ["subject_rowid = ?"];
-	const bindings: (string | number)[] = [subjectRowid];
-	if (period !== null) {
-		conditions.push("day BETWEEN ? AND ?");
-		bindings.push(period.start, period.end);
-	}
+/** Sum the daily counters over all time — the only aggregation any surface shows. */
+export async function countsSummary(db: D1Database, subjectRowid: number): Promise<CountsSummary> {
 	const { results } = await db
 		.prepare(
 			`SELECT type, SUM(count) AS total FROM reaction_counts
-			 WHERE ${conditions.join(" AND ")} GROUP BY type HAVING total > 0`,
+			 WHERE subject_rowid = ? GROUP BY type HAVING total > 0`,
 		)
-		.bind(...bindings)
+		.bind(subjectRowid)
 		.all<{ type: string; total: number }>();
 	const byType: Record<string, number> = {};
 	let total = 0;
@@ -370,7 +340,7 @@ export async function revokeReaction(
 }
 
 /**
- * Past this many reaction_counts rows, period=all summaries scan enough that
+ * Past this many reaction_counts rows, the all-time summaries scan enough that
  * the totals-rollup table is worth designing. Single source: the nudge mail
  * and the ops review gauge both read it from here.
  */

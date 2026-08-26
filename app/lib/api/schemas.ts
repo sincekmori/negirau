@@ -64,21 +64,16 @@ export const nearListResponseSchema = z.object({
 
 export const reactionsResponseSchema = z.object({
 	id: z.string(),
-	period: z
-		.string()
-		.describe("The aggregation period as requested ('2026-W33', '2026-08', '2026', or 'all')"),
 	total: displayValueSchema,
 	by_type: z.record(z.string(), displayValueSchema),
 });
 
 export function toApiReactions(
 	id: string,
-	period: string,
 	summary: CountsSummary,
 ): z.infer<typeof reactionsResponseSchema> {
 	return {
 		id,
-		period,
 		total: displayValue(summary.total),
 		by_type: Object.fromEntries(
 			Object.entries(summary.byType).map(([type, count]) => [type, displayValue(count)]),
@@ -113,13 +108,4 @@ export const subjectListQuerySchema = z.object({
 		.describe("Near-search radius in meters"),
 	limit: z.coerce.number().int().min(1).max(100).default(20).describe("Page size"),
 	cursor: z.string().optional().describe("Keyset cursor from a previous page"),
-});
-
-export const reactionsQuerySchema = z.object({
-	period: z
-		.string()
-		.optional()
-		.describe(
-			"Aggregation period: ISO week ('2026-W33'), month ('2026-08'), year ('2026'), or 'all'. Default: 'all'",
-		),
 });
