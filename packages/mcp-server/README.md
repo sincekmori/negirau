@@ -1,5 +1,10 @@
 # negirau-mcp
 
+[![npm version](https://badge.fury.io/js/negirau-mcp.svg)](https://badge.fury.io/js/negirau-mcp)
+[![Node Versions](https://img.shields.io/node/v/negirau-mcp.svg)](https://www.npmjs.com/package/negirau-mcp)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/sincekmori/negirau/actions/workflows/ci.yml/badge.svg)](https://github.com/sincekmori/negirau/actions/workflows/ci.yml)
+
 MCP (Model Context Protocol) server for the [Negirau](https://negirau.com) public API.
 
 Self-updating by construction: at startup it fetches `https://api.negirau.com/v1/openapi.json` and registers one tool per operation from the spec's `x-mcp-tool-name` / `x-agent-description` annotations.

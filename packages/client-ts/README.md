@@ -1,5 +1,10 @@
 # negirau
 
+[![npm version](https://badge.fury.io/js/negirau.svg)](https://badge.fury.io/js/negirau)
+[![Node Versions](https://img.shields.io/node/v/negirau.svg)](https://www.npmjs.com/package/negirau)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/sincekmori/negirau/actions/workflows/ci.yml/badge.svg)](https://github.com/sincekmori/negirau/actions/workflows/ci.yml)
+
 Typed TypeScript client for the [Negirau](https://negirau.com) public API (read-only, anonymous, CORS-open).
 
 Hand-written around resource namespaces, a typed error hierarchy, and retries with exponential backoff — dependency-free, and kept honest by contract tests: they load the service's build-time-generated `openapi.json` and prove that every operation is covered, that requests only use spec-declared parameters, and that spec-conformant payloads satisfy the exported types.

@@ -1,5 +1,13 @@
 # negirau
 
+[![PyPI version](https://badge.fury.io/py/negirau.svg)](https://badge.fury.io/py/negirau)
+[![Python Versions](https://img.shields.io/pypi/pyversions/negirau.svg)](https://pypi.org/project/negirau/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/sincekmori/negirau/actions/workflows/ci.yml/badge.svg)](https://github.com/sincekmori/negirau/actions/workflows/ci.yml)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
+
 Python client for the [Negirau](https://negirau.com) public API (read-only, anonymous).
 
 Hand-written around resource namespaces, a `types` package, a typed exception hierarchy, and retries with exponential backoff — and kept honest by contract tests: they load the service's build-time-generated `openapi.json` and prove that every operation is covered, that requests only use spec-declared parameters, and that spec-conformant payloads parse into the models.
