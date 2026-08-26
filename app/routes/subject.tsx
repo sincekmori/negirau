@@ -359,16 +359,20 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 				    one centered column — QR card, emoji dial, hint, share hub. */}
 				<section className="border-hairline mt-12 flex flex-col items-center gap-3 border-t pt-8 text-center">
 					<div className="bg-paper-fixed text-ink-fixed w-fit rounded-lg px-3 py-2 shadow-sm">
-						{/* Name only: the pin lives inside the QR itself. */}
-						<p className="mb-1 max-w-40 truncate text-[0.8rem] font-medium">{subject.name}</p>
-						{/* Decorative for readers: the caption and hint already say it. */}
-						<div
-							aria-hidden="true"
-							data-qr-type={qrType}
-							className="mx-auto size-28 [&_svg]:size-full"
-							dangerouslySetInnerHTML={{ __html: qrSvg }}
-						/>
-						<p className="mt-1 text-[0.8rem] font-medium">{m.sendVerb(REACTION_EMOJI[qrType])}</p>
+						{/* One width knob: the QR fills this column and the caption
+						    truncates to it, so neither can drift from the other. */}
+						<div className="w-36">
+							{/* Name only: the pin lives inside the QR itself. */}
+							<p className="mb-1 truncate text-[0.8rem] font-medium">{subject.name}</p>
+							{/* Decorative for readers: the caption and hint already say it. */}
+							<div
+								aria-hidden="true"
+								data-qr-type={qrType}
+								className="aspect-square w-full [&_svg]:size-full"
+								dangerouslySetInnerHTML={{ __html: qrSvg }}
+							/>
+							<p className="mt-1 text-[0.8rem] font-medium">{m.sendVerb(REACTION_EMOJI[qrType])}</p>
+						</div>
 					</div>
 					<fieldset aria-label={m.qrTypePickerLabel} className="flex gap-1">
 						{REACTION_TYPES.map((type) => (
