@@ -39,7 +39,7 @@ There is no admin UI: the operator works directly on D1 (Cloudflare console or `
 
 ## Architecture invariants — decisions, not defaults; do not "fix" them
 
-- **Counts are display values.** Every public surface (UI, API, badge, OGP, feed) shows the exact count up to 100 and "100+" beyond — that is the only boundary. The single source of truth is `app/lib/display-value.ts`; unbounded exact counts stay operator-only (SQL).
+- **Counts are display values.** Every public surface (UI, API, OGP, feed) shows the exact count up to 100 and "100+" beyond (the badge deliberately shows no count at all) — that is the only boundary. The single source of truth is `app/lib/display-value.ts`; unbounded exact counts stay operator-only (SQL).
 - **No ranking surfaces.** No sorted count lists, no cross-subject comparison, no bulk dumps (they broke the 25 MiB asset limit at national scale and would have invited rankings); the lookup path is server-side search — FTS5 trigram in `migrations/0001_init.sql`, `q=` on `/v1/subjects`.
 - **Subjects are abstract and self-serve.** A subject is a name, optionally with a location (lat/lng) — people and groups included. Anyone creates one at `/subjects/new` (Turnstile-gated, live immediately, UUID id); operators insert rows with chosen ids (e.g. `sincekmori`) via SQL — except `new`, which the create form URL owns (enforced by a CHECK constraint). There is no pre-registration, no external-namespace provisioning, and no existence verification — moderation is daily and after the fact (`status`: active → quarantined → removed). Creators may also mark a subject link-only (`listed = 0`): off every enumeration surface (search, listings, nearby, sitemap, noindex) but fully functional by URL — unlisted, not secret, and orthogonal to `status`.
 - **Zero visitor data.** No user table, no email, no IP in logs. The one exception, by legal design: `subjects.created_ip` stores the creator's IP solely for abuse/legal traceability (takedown and disclosure requests), and NULL marks operator-created rows. Rate-limit counters live in Cloudflare bindings (volatile). GPS near-search (`app/lib/components/NearbyFinder.tsx`) queries the API from the geohash-cell CENTER (precision 5, ≈5 km quantization) and computes true distances in the browser — the precise position never leaves the device.
@@ -108,7 +108,7 @@ There is no admin UI: the operator works directly on D1 (Cloudflare console or `
 | API contract (spec source)    | `app/lib/api/schemas.ts`, `app/lib/api/manifest.ts`         |
 | DB schema                     | `migrations/0001_init.sql`                                  |
 | Subject page + QR send        | `app/routes/subject.tsx`                                    |
-| Badges (display + send)       | `app/lib/server/badge.ts`, `app/routes/badge*.ts`           |
+| Badge (identity, count-free)  | `app/lib/server/badge.ts`, `app/routes/badge.ts`            |
 | Maps (subject page, picker)   | `app/lib/components/SubjectMap.tsx`, `LocationPicker.tsx`   |
 | Ops levers (kill switch etc.) | wrangler.jsonc vars + D1 SQL                                |
 

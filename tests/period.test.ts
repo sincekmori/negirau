@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isoWeekId, monthRange, parseIsoWeek, weekRange } from "~/lib/period";
+import { isoWeekId, parseIsoWeek, parsePeriod, weekRange } from "~/lib/period";
 
 describe("isoWeekId", () => {
 	it("assigns early January to the previous year's last week when ISO rules say so", () => {
@@ -22,9 +22,9 @@ describe("weekRange", () => {
 	});
 });
 
-describe("monthRange", () => {
+describe("parsePeriod", () => {
 	it("covers the full month including leap days", () => {
-		expect(monthRange(new Date("2028-02-10"))).toEqual({ start: "2028-02-01", end: "2028-02-29" });
+		expect(parsePeriod("2028-02")).toEqual({ start: "2028-02-01", end: "2028-02-29" });
 	});
 });
 

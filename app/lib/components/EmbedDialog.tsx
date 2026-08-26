@@ -34,8 +34,8 @@ export function EmbedDialog({
 	const m = messages(locale);
 	const [format, setFormat] = useState<Format>("HTML");
 
-	// No lang parameter: the default badge (period=all) draws only the icon,
-	// the subject name, and the number — language-neutral for every viewer.
+	// The badge is language-neutral by construction (brand + name, no count),
+	// so the URL carries no parameters at all.
 	const imageUrl = `${origin}/subjects/${subjectId}/badge`;
 	const target = `${origin}/subjects/${subjectId}`;
 	const snippet = snippetFor(format, imageUrl, target);

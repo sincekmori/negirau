@@ -55,14 +55,14 @@ export function recentWeeks(date: Date, count: number): DayRange[] {
 }
 
 /** First..last day of the calendar month containing `date`. */
-export function monthRange(date: Date): DayRange {
+function monthRange(date: Date): DayRange {
 	const first = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
 	const last = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0));
 	return { start: toIsoDate(first), end: toIsoDate(last) };
 }
 
 /** First..last day of the calendar year containing `date`. */
-export function yearRange(date: Date): DayRange {
+function yearRange(date: Date): DayRange {
 	const year = date.getUTCFullYear();
 	return { start: `${year}-01-01`, end: `${year}-12-31` };
 }

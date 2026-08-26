@@ -220,9 +220,6 @@ export interface Messages {
 	// only the /privacy and /terms route chunks, not every page).
 	privacyTitle: string;
 
-	/** Badge value suffixes (週/wk …); all-time deliberately has none. */
-	badgePeriodSuffix: { week: string; month: string; year: string };
-
 	// Terms of service page
 	termsTitle: string;
 }
