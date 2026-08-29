@@ -14,24 +14,15 @@
  *
  * Targets --env local | development | production. The default is development:
  * touching the production DB is a deliberate act, never a forgotten flag.
+ *
+ * Which subject and which SQL is decided in ops-plan.ts, where it is tested;
+ * this file only runs the result.
  */
 
 import { unstable_readConfig } from "wrangler";
 
-import { ROLLUP_WATCH_THRESHOLD } from "../app/lib/server/db";
-
-const SUBCOMMANDS = [
-	"review",
-	"apply",
-	"delete",
-	"finalize",
-	"restore",
-	"counts",
-	"purge",
-] as const;
-/** Subcommands that act on the whole table, so they take no subject id. */
-const WITHOUT_ID: readonly Subcommand[] = ["review", "purge"];
-type Subcommand = (typeof SUBCOMMANDS)[number];
+import { planFromArgv, UsageError } from "./ops-plan";
+import type { Target } from "./ops-plan";
 
 /** Database names come from wrangler.jsonc — the one file a fork edits. */
 function databaseName(env: string | undefined): string {
@@ -44,28 +35,16 @@ function databaseName(env: string | undefined): string {
 }
 
 const rootDb = databaseName(undefined);
-const TARGETS = {
+const TARGET_FLAGS: Record<Target, { db: string; flags: readonly string[] }> = {
 	local: { db: rootDb, flags: ["--local"] },
 	development: { db: databaseName("dev"), flags: ["--env", "dev", "--remote"] },
 	production: { db: rootDb, flags: ["--remote"] },
-} as const;
+};
 
-function wranglerArgs(): { db: string; flags: readonly string[] } {
-	const flagIndex = process.argv.indexOf("--env");
-	const target = flagIndex === -1 ? "development" : (process.argv.at(flagIndex + 1) ?? "");
-	if (!(target in TARGETS)) {
-		console.error(`usage: --env <${Object.keys(TARGETS).join("|")}> (default: development)`);
-		process.exit(1);
-	}
-	return TARGETS[target as keyof typeof TARGETS];
-}
-
-async function execute(sql: string): Promise<unknown> {
-	const { db, flags } = wranglerArgs();
+async function execute(sql: string, target: Target): Promise<unknown> {
+	const { db, flags } = TARGET_FLAGS[target];
 	const proc = Bun.spawn(
-		// Remote writes prompt for confirmation; this runs non-interactively, and
-		// the deliberate act is already the explicit `--env production`.
-		["bunx", "wrangler", "d1", "execute", db, ...flags, "--yes", "--json", "--command", sql],
+		["bunx", "wrangler", "d1", "execute", db, ...flags, "--json", "--yes", "--command", sql],
 		{ stdout: "pipe", stderr: "pipe" },
 	);
 	const [stdout, stderr, exitCode] = await Promise.all([
@@ -83,83 +62,11 @@ async function execute(sql: string): Promise<unknown> {
 	return parsed.flatMap((statement) => statement.results);
 }
 
-/** Subject ids are UUIDs or operator slugs; anything else never reaches SQL. */
-function subjectId(): string {
-	const id = process.argv.at(3);
-	if (id === undefined || !/^[A-Za-z0-9-]+$/.test(id)) {
-		throw new Error("usage: bun run ops <subcommand> <subject-id>");
-	}
-	return id;
-}
-
-const byId = (id: string) => `(SELECT rowid FROM subjects WHERE id = '${id}')`;
-
-const STATEMENTS: Record<Subcommand, (id: string) => string> = {
-	// Both branches windowed on rowid (creation order) so a spam wave cannot
-	// make the review scan — or the console dump — grow without bound. The
-	// second statement is the rollup watch (see reactionRowsGauge in
-	// app/lib/server/db.ts): MAX(rowid) approximates rows ever inserted for
-	// 1 scanned row; execute() flattens both result sets into one table.
-	review: () => `
-		SELECT 'new' AS section, id, name, status, listed, created_at, NULL AS kind, NULL AS payload
-		  FROM (SELECT * FROM subjects ORDER BY rowid DESC LIMIT 200)
-		 WHERE created_at >= datetime('now', '-2 days')
-		UNION ALL
-		SELECT 'request', s.id, s.name, s.status, s.listed, sr.created_at, sr.kind, sr.payload
-		  FROM (SELECT * FROM subject_requests ORDER BY rowid DESC LIMIT 200) sr
-		  JOIN subjects s ON s.rowid = sr.subject_rowid
-		ORDER BY section, created_at DESC;
-		SELECT COALESCE(MAX(rowid), 0) AS reaction_rows, ${ROLLUP_WATCH_THRESHOLD} AS rollup_watch
-		  FROM reaction_counts`,
-	// json_extract maps JSON true/false straight onto the listed INTEGER; the
-	// FTS trigger keeps the search index in sync with the new name. The join
-	// is empty when no update request is pending, so nothing changes.
-	apply: (id) => `
-		UPDATE subjects SET
-		  name = json_extract(r.payload, '$.name'),
-		  listed = json_extract(r.payload, '$.listed')
-		FROM (SELECT payload FROM subject_requests
-		      WHERE subject_rowid = ${byId(id)} AND kind = 'update') AS r
-		WHERE id = '${id}';
-		DELETE FROM subject_requests WHERE subject_rowid = ${byId(id)} AND kind = 'update';
-		SELECT id, name, status, listed FROM subjects WHERE id = '${id}'`,
-	delete: (id) => `
-		UPDATE subjects SET status = 'quarantined' WHERE id = '${id}';
-		DELETE FROM subject_requests WHERE subject_rowid = ${byId(id)} AND kind = 'delete';
-		SELECT id, name, status FROM subjects WHERE id = '${id}'`,
-	finalize: (id) => `
-		UPDATE subjects SET status = 'removed', created_ip = NULL WHERE id = '${id}' AND status = 'quarantined';
-		SELECT id, name, status FROM subjects WHERE id = '${id}'`,
-	restore: (id) => `
-		UPDATE subjects SET status = 'active' WHERE id = '${id}' AND status = 'quarantined';
-		SELECT id, name, status FROM subjects WHERE id = '${id}'`,
-	counts: (id) => `
-		SELECT type, SUM(count) AS total FROM reaction_counts
-		WHERE subject_rowid = ${byId(id)} GROUP BY type ORDER BY total DESC`,
-	// The end of the line: 'removed' hides a subject, purge deletes it. The
-	// two-stage removal (§3.5) has already run, so there is nothing left to
-	// reverse — and the reaction counters and any queued request go with the
-	// row, by ON DELETE CASCADE. Listing first shows the operator what went.
-	// Without an id, every removed subject is purged at once.
-	purge: (id) => {
-		const scope = id === "" ? "" : ` AND id = '${id}'`;
-		return `
-		SELECT id, name FROM subjects WHERE status = 'removed'${scope};
-		DELETE FROM subjects
-		 WHERE rowid IN (SELECT rowid FROM subjects WHERE status = 'removed'${scope})`;
-	},
-};
-
-function isSubcommand(word: string | undefined): word is Subcommand {
-	return (SUBCOMMANDS as readonly string[]).includes(word ?? "");
-}
-
-const subcommand = process.argv.at(2);
-if (!isSubcommand(subcommand)) {
-	console.error(
-		`usage: bun run ops <${SUBCOMMANDS.join("|")}> [subject-id] [--env local|development|production]`,
-	);
+let plan;
+try {
+	plan = planFromArgv(process.argv.slice(2));
+} catch (error) {
+	console.error(error instanceof UsageError ? error.message : String(error));
 	process.exit(1);
 }
-const sql = STATEMENTS[subcommand](WITHOUT_ID.includes(subcommand) ? "" : subjectId());
-console.table((await execute(sql)) as object[]);
+console.table((await execute(plan.sql, plan.target)) as object[]);
