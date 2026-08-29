@@ -8,16 +8,12 @@
 // crawlers, and the URL could still be indexed reference-style.
 
 import { appContext } from "~/lib/context";
-import { edgeCachedByUrl } from "~/lib/server/edge-cache";
+import { edgeCachedLoader } from "~/lib/server/edge-cache";
 import { cachedResponse } from "~/lib/server/route-helpers";
 
 import type { Route } from "./+types/robots";
 
-export function loader(args: Route.LoaderArgs) {
-	// Read-only representation: served through the edge cache (URL-keyed).
-	const { ctx } = args.context.get(appContext);
-	return edgeCachedByUrl(args.request, ctx, () => Promise.resolve(produce(args)));
-}
+export const loader = edgeCachedLoader(produce);
 
 function produce({ context }: Route.LoaderArgs) {
 	const { site } = context.get(appContext);

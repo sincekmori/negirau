@@ -5,6 +5,10 @@
  * Every consumer keys entries with synthetic never-fetched URLs.
  */
 
+import type { RouterContextProvider } from "react-router";
+
+import { appContext } from "~/lib/context";
+
 interface EdgeCache {
 	match: (key: Request) => Promise<Response | undefined>;
 	put: (key: Request, response: Response) => Promise<void>;
@@ -33,7 +37,7 @@ function notModified(request: Request, response: Response): Response | undefined
  * down would starve this cache: a 304 is not `ok`, so the entry would never
  * be stored, and every revalidating client would keep paying full price.
  */
-export async function edgeCachedByUrl(
+async function edgeCachedByUrl(
 	request: Request,
 	ctx: ExecutionContext,
 	produce: () => Promise<Response>,
@@ -51,4 +55,25 @@ export async function edgeCachedByUrl(
 		ctx.waitUntil(cache.put(key, response.clone()));
 	}
 	return notModified(request, response) ?? response;
+}
+
+/** The loader shape every read-only representation shares. */
+interface RepresentationArgs {
+	request: Request;
+	context: Readonly<RouterContextProvider>;
+}
+
+/**
+ * A whole loader for a read-only representation: the edge cache in front of
+ * `produce`. Written once here rather than per route so that "these responses
+ * are cacheable, and conditional GETs are answered by the cache" stays one
+ * decision instead of nine copies drifting apart. `produce` may be sync.
+ */
+export function edgeCachedLoader<Args extends RepresentationArgs>(
+	produce: (args: Args) => Response | Promise<Response>,
+): (args: Args) => Promise<Response> {
+	return (args) => {
+		const { ctx } = args.context.get(appContext);
+		return edgeCachedByUrl(args.request, ctx, () => Promise.resolve(produce(args)));
+	};
 }

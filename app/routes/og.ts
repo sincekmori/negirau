@@ -3,19 +3,13 @@
 import { appContext } from "~/lib/context";
 import { DEFAULT_LOCALE, messages, totalHeadline } from "~/lib/i18n";
 import { countsSummary } from "~/lib/server/db";
-import { edgeCachedByUrl } from "~/lib/server/edge-cache";
+import { edgeCachedLoader } from "~/lib/server/edge-cache";
 import { ogCardResponse } from "~/lib/server/og-card";
 import { loadActiveSubject } from "~/lib/server/route-helpers";
 
 import type { Route } from "./+types/og";
 
-export function loader(args: Route.LoaderArgs) {
-	// Read-only representation: served through the edge cache (URL-keyed), so
-	// a crawler burst costs one D1 read per TTL, not one per hit — the
-	// synthetic-key card cache behind it only ever spared the Satori render.
-	const { ctx } = args.context.get(appContext);
-	return edgeCachedByUrl(args.request, ctx, () => produce(args));
-}
+export const loader = edgeCachedLoader(produce);
 
 async function produce({ params, context }: Route.LoaderArgs) {
 	const { env, ctx, site } = context.get(appContext);

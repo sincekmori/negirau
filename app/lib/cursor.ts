@@ -9,14 +9,12 @@
  */
 
 import { fromBase64Url, toBase64Url } from "~/lib/base64url";
+import { perSecret } from "~/lib/derived-key";
 
 const IV_BYTES = 12;
 const encoder = new TextEncoder();
 
-// The key schedule is identical for every request; cache it per secret.
-let cachedKey: { secret: string; key: Promise<CryptoKey> } | undefined;
-
-async function deriveKey(secret: string): Promise<CryptoKey> {
+const sealKey = perSecret(async (secret) => {
 	// The secret is an arbitrary-length string; hash it to exact key material.
 	const material = await crypto.subtle.digest(
 		"SHA-256",
@@ -26,14 +24,7 @@ async function deriveKey(secret: string): Promise<CryptoKey> {
 		"encrypt",
 		"decrypt",
 	]);
-}
-
-function sealKey(secret: string): Promise<CryptoKey> {
-	if (cachedKey?.secret !== secret) {
-		cachedKey = { secret, key: deriveKey(secret) };
-	}
-	return cachedKey.key;
-}
+});
 
 export async function encodeCursor(secret: string, id: number): Promise<string> {
 	const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));

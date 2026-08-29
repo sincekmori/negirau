@@ -11,7 +11,7 @@ import { DEFAULT_LOCALE, messages, totalHeadline } from "~/lib/i18n";
 import { isReactionType, REACTION_EMOJI } from "~/lib/reactions";
 import { countsSummary } from "~/lib/server/db";
 import type { CountsSummary, SubjectRow } from "~/lib/server/db";
-import { edgeCachedByUrl } from "~/lib/server/edge-cache";
+import { edgeCachedLoader } from "~/lib/server/edge-cache";
 import { cachedResponse, escapeXml, loadActiveSubject } from "~/lib/server/route-helpers";
 
 import type { Route } from "./+types/feed";
@@ -47,11 +47,7 @@ function buildEntry(
 </entry>`;
 }
 
-export function loader(args: Route.LoaderArgs) {
-	// Read-only representation: served through the edge cache (URL-keyed).
-	const { ctx } = args.context.get(appContext);
-	return edgeCachedByUrl(args.request, ctx, () => produce(args));
-}
+export const loader = edgeCachedLoader(produce);
 
 async function produce({ request, params, context }: Route.LoaderArgs) {
 	const { env } = context.get(appContext);

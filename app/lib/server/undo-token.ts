@@ -12,28 +12,20 @@
  */
 
 import { fromBase64Url, toBase64Url } from "~/lib/base64url";
+import { perSecret } from "~/lib/derived-key";
 import { UNDO_WINDOW_MS } from "~/lib/reactions";
 
 const encoder = new TextEncoder();
 
-// The key schedule is identical for every request; cache it per secret.
-let cachedKey: { secret: string; key: Promise<CryptoKey> } | undefined;
-
-function hmacKey(secret: string): Promise<CryptoKey> {
-	if (cachedKey?.secret !== secret) {
-		cachedKey = {
-			secret,
-			key: crypto.subtle.importKey(
-				"raw",
-				encoder.encode(`negirau-undo:${secret}`),
-				{ name: "HMAC", hash: "SHA-256" },
-				false,
-				["sign", "verify"],
-			),
-		};
-	}
-	return cachedKey.key;
-}
+const hmacKey = perSecret((secret) =>
+	crypto.subtle.importKey(
+		"raw",
+		encoder.encode(`negirau-undo:${secret}`),
+		{ name: "HMAC", hash: "SHA-256" },
+		false,
+		["sign", "verify"],
+	),
+);
 
 interface UndoScope {
 	subjectId: number;
