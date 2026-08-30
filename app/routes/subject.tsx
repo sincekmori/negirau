@@ -232,21 +232,33 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 	}, []);
 
 	async function undo(): Promise<void> {
-		if (pendingUndo === undefined) {
+		if (sending || pendingUndo === undefined) {
 			return;
 		}
 		const { type, token } = pendingUndo;
-		const response = await fetch(`/subjects/${subject.id}/reactions`, {
-			method: "DELETE",
-			headers: { "content-type": "application/json" },
-			body: JSON.stringify({ type, undo_token: token }),
-		});
-		if (response.ok) {
-			unmarkSentToday(subject.id, type);
-			refreshSentTypes();
-			setDelta((current) => ({ ...current, [type]: (current[type] ?? 0) - 1 }));
-		}
+		// Cleared before the fetch, and `sending` set like send() does: a second
+		// tap during the round trip must find nothing to undo — the server also
+		// refuses a replayed voucher now, but the double decrement should never
+		// leave the device in the first place.
 		setPendingUndo(undefined);
+		setSending(true);
+		setNotice(undefined);
+		try {
+			const response = await fetch(`/subjects/${subject.id}/reactions`, {
+				method: "DELETE",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ type, undo_token: token }),
+			});
+			if (response.ok) {
+				unmarkSentToday(subject.id, type);
+				refreshSentTypes();
+				setDelta((current) => ({ ...current, [type]: (current[type] ?? 0) - 1 }));
+			}
+		} catch {
+			setNotice(m.noticeNetworkFailed);
+		} finally {
+			setSending(false);
+		}
 	}
 
 	function countOf(type: ReactionType): number {

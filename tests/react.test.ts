@@ -3,7 +3,8 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { countsSummary } from "~/lib/server/db";
+import { toIsoDate } from "~/lib/dates";
+import { countsSummary, recordReaction } from "~/lib/server/db";
 import type { SubjectRow } from "~/lib/server/db";
 import { handleReact, handleUndo } from "~/lib/server/react";
 
@@ -97,6 +98,29 @@ describe("handleUndo", () => {
 		});
 		expect(undone.ok).toBe(true);
 		expect(await recordedByType(subject.rowid)).toEqual({});
+	});
+
+	it("spends a voucher on first use — a replay cannot drain the shared counter", async () => {
+		mockSiteverify(true);
+		// Someone else's send on the same day: the replay's would-be victim.
+		await recordReaction(env.DB, subject.rowid, "heart", toIsoDate(new Date()));
+		const sent = await handleReact(deps, subject.id, { type: "heart", token: "tok" });
+		if (!sent.ok) {
+			throw new Error("send failed");
+		}
+		expect(await recordedByType(subject.rowid)).toEqual({ heart: 2 });
+		const first = await handleUndo(deps, subject.id, {
+			type: "heart",
+			undo_token: sent.undo_token,
+		});
+		expect(first.ok).toBe(true);
+		const replay = await handleUndo(deps, subject.id, {
+			type: "heart",
+			undo_token: sent.undo_token,
+		});
+		expect(replay).toMatchObject({ ok: false, status: 409, error: "already_undone" });
+		// The bystander's reaction survives the replay.
+		expect(await recordedByType(subject.rowid)).toEqual({ heart: 1 });
 	});
 
 	it("rejects forged tokens", async () => {

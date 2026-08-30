@@ -1,4 +1,4 @@
-// Deleting a subject for real must take its rows with it (migration 0002).
+// Deleting a subject for real must take its rows with it.
 // Without the cascade a purge would depend on the operator remembering every
 // child table, and a forgotten row would not stay harmless: SQLite reuses a
 // freed rowid, so the next subject to take that slot would inherit the
