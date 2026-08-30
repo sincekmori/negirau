@@ -5,9 +5,9 @@
  * wrangler subprocess around it is not.
  */
 
-import { ROLLUP_WATCH_THRESHOLD } from "../app/lib/server/db";
+import { isoCutoffSql, ROLLUP_WATCH_THRESHOLD } from "../app/lib/server/db";
 
-export const SUBCOMMANDS = [
+const SUBCOMMANDS = [
 	"review",
 	"apply",
 	"delete",
@@ -16,15 +16,10 @@ export const SUBCOMMANDS = [
 	"counts",
 	"purge",
 ] as const;
-export type Subcommand = (typeof SUBCOMMANDS)[number];
+type Subcommand = (typeof SUBCOMMANDS)[number];
 
-export const TARGETS = ["local", "development", "production"] as const;
+const TARGETS = ["local", "development", "production"] as const;
 export type Target = (typeof TARGETS)[number];
-
-/** Subcommands that act on the whole table, so they take no subject id. */
-const WITHOUT_ID = new Set<Subcommand>(["review"]);
-/** Purge scopes to one subject when given an id, to every removed row without one. */
-const OPTIONAL_ID = new Set<Subcommand>(["purge"]);
 
 /**
  * Subject ids are UUIDs or operator slugs. Anchoring the first character on
@@ -35,7 +30,6 @@ const OPTIONAL_ID = new Set<Subcommand>(["purge"]);
 const SUBJECT_ID = /^[A-Za-z0-9][A-Za-z0-9-]*$/u;
 
 export interface OpsPlan {
-	subcommand: Subcommand;
 	target: Target;
 	/** The subject the statement is scoped to; "" means the whole-table form. */
 	id: string;
@@ -57,10 +51,7 @@ const STATEMENTS: Record<Subcommand, (id: string) => string> = {
 	review: () => `
 		SELECT 'new' AS section, id, name, status, listed, created_at, NULL AS kind, NULL AS payload
 		  FROM (SELECT * FROM subjects ORDER BY rowid DESC LIMIT 200)
-		 -- created_at is an ISO string ("...T...Z"); datetime() returns a
-		 -- space-separated one, and the text compare puts every "T" above the
-		 -- space, widening the window by a day (see reviewQueueCounts).
-		 WHERE created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-2 days')
+		 WHERE created_at >= ${isoCutoffSql("-2 days")}
 		UNION ALL
 		SELECT 'request', s.id, s.name, s.status, s.listed, sr.created_at, sr.kind, sr.payload
 		  FROM (SELECT * FROM subject_requests ORDER BY rowid DESC LIMIT 200) sr
@@ -141,33 +132,38 @@ function split(argv: readonly string[]): { positionals: string[]; target: Target
 	return { positionals, target };
 }
 
-export function usage(): string {
-	return `usage: bun run ops <${SUBCOMMANDS.join("|")}> [subject-id] [--env ${TARGETS.join("|")}]`;
+const USAGE = `usage: bun run ops <${SUBCOMMANDS.join("|")}> [subject-id] [--env ${TARGETS.join("|")}]`;
+
+/**
+ * review acts on the whole table; purge scopes to an id when given one, to
+ * every removed row without; everything else needs its subject. "" is the
+ * whole-table form.
+ */
+function validatedId(subcommand: Subcommand, given: string | undefined): string {
+	if (subcommand === "review" && given !== undefined) {
+		throw new UsageError("review acts on the whole table and takes no subject id");
+	}
+	if (given === undefined) {
+		if (subcommand !== "review" && subcommand !== "purge") {
+			throw new UsageError(`${subcommand} needs a subject id`);
+		}
+		return "";
+	}
+	if (!SUBJECT_ID.test(given)) {
+		throw new UsageError(`not a subject id: ${given}`);
+	}
+	return given;
 }
 
 export function planFromArgv(argv: readonly string[]): OpsPlan {
 	const { positionals, target } = split(argv);
-	const [subcommand, id, ...extra] = positionals;
+	const [subcommand, given, ...extra] = positionals;
 	if (!isSubcommand(subcommand)) {
-		throw new UsageError(usage());
+		throw new UsageError(USAGE);
 	}
 	if (extra.length > 0) {
 		throw new UsageError(`unexpected argument: ${extra[0] ?? ""}`);
 	}
-	if (WITHOUT_ID.has(subcommand)) {
-		if (id !== undefined) {
-			throw new UsageError(`${subcommand} acts on the whole table and takes no subject id`);
-		}
-		return { subcommand, target, id: "", sql: STATEMENTS[subcommand]("") };
-	}
-	if (id === undefined) {
-		if (!OPTIONAL_ID.has(subcommand)) {
-			throw new UsageError(`${subcommand} needs a subject id`);
-		}
-		return { subcommand, target, id: "", sql: STATEMENTS[subcommand]("") };
-	}
-	if (!SUBJECT_ID.test(id)) {
-		throw new UsageError(`not a subject id: ${id}`);
-	}
-	return { subcommand, target, id, sql: STATEMENTS[subcommand](id) };
+	const id = validatedId(subcommand, given);
+	return { target, id, sql: STATEMENTS[subcommand](id) };
 }

@@ -98,6 +98,16 @@ export async function upsertSubjectRequest(
 }
 
 /**
+ * SQL for "created_at within the last N": created_at is an ISO string
+ * ("...T...Z"), and datetime() returns a space-separated one — the text
+ * compare puts every "T" above the space, counting a day too many. One owner
+ * so the nudge and the ops review can never disagree on the format again.
+ */
+export function isoCutoffSql(modifier: string): string {
+	return `strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '${modifier}')`;
+}
+
+/**
  * The daily nudge's numbers, both bounded: the queue by its PK (≤ 2 per
  * subject), the fresh count by a newest-500 window (rowid tracks creation
  * order) so the scan never grows with the table. 500 saturates the count,
@@ -111,10 +121,7 @@ export async function reviewQueueCounts(
 			`SELECT (SELECT COUNT(*) FROM subject_requests) AS requests,
 			        (SELECT COUNT(*)
 			           FROM (SELECT created_at FROM subjects ORDER BY rowid DESC LIMIT 500)
-			          -- created_at is an ISO string ("...T...Z"); datetime() would
-			          -- return a space-separated one, and the text compare puts
-			          -- every "T" above the space — counting yesterday as fresh.
-			          WHERE created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day')) AS fresh`,
+			          WHERE created_at >= ${isoCutoffSql("-1 day")}) AS fresh`,
 		)
 		.first<{ requests: number; fresh: number }>();
 	return row ?? { requests: 0, fresh: 0 };

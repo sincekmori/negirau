@@ -44,6 +44,8 @@ const TARGET_FLAGS: Record<Target, { db: string; flags: readonly string[] }> = {
 async function execute(sql: string, target: Target): Promise<unknown> {
 	const { db, flags } = TARGET_FLAGS[target];
 	const proc = Bun.spawn(
+		// Remote writes prompt for confirmation; this runs non-interactively, and
+		// the deliberate act is already the explicit `--env production`.
 		["bunx", "wrangler", "d1", "execute", db, ...flags, "--json", "--yes", "--command", sql],
 		{ stdout: "pipe", stderr: "pipe" },
 	);
