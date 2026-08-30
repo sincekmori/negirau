@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1](https://github.com/sincekmori/negirau/compare/v0.3.0...v0.3.1) (2026-08-30)
+
+
+### Bug Fixes
+
+* stop the ops CLI acting on rows the operator did not name ([40627d8](https://github.com/sincekmori/negirau/commit/40627d88abefe6f826a58e14079739991dcec356))
+* stop the ops CLI acting on rows the operator did not name — a scoped purge now honours its id instead of deleting every removed subject, a flag can no longer stand in for a missing one, and the review window compares timestamps in the format they are stored in ([6731dc1](https://github.com/sincekmori/negirau/commit/6731dc1b99c75ab79ac3986bc505bf30638fa20e))
+* stop the skill promising that near composes with q ([0c29495](https://github.com/sincekmori/negirau/commit/0c294950e20cdd24f6c319f7023c52845c2a4ffa))
+* stop the skill promising that near composes with q — the API switches to the distance-ordered search and drops the name, which the manifest and the query schema already said ([e038480](https://github.com/sincekmori/negirau/commit/e038480ca8ee43812c7f96803e176877250767de))
+
 ## [0.3.0](https://github.com/sincekmori/negirau/compare/v0.2.0...v0.3.0) (2026-08-26)
 
 
