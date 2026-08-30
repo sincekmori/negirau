@@ -6,9 +6,9 @@ import { Link } from "react-router";
 import { SubjectPills } from "~/lib/components/SubjectPills";
 import { SubjectSearch } from "~/lib/components/SubjectSearch";
 import { appContext } from "~/lib/context";
-import { decodeCursor, paginate } from "~/lib/cursor";
 import { messages } from "~/lib/i18n";
 import { createBodySchema, handleCreate } from "~/lib/server/create-subject";
+import { decodeCursor, paginate } from "~/lib/server/cursor";
 import { listSubjectsBefore } from "~/lib/server/db";
 import { actionJson, clientIp, jsonBody, refusalResponse } from "~/lib/server/route-helpers";
 

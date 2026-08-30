@@ -9,7 +9,7 @@
  */
 
 import { fromBase64Url, toBase64Url } from "~/lib/base64url";
-import { perSecret } from "~/lib/derived-key";
+import { perSecret } from "~/lib/server/derived-key";
 
 const IV_BYTES = 12;
 const encoder = new TextEncoder();

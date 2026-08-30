@@ -4,8 +4,8 @@ import type * as z from "zod";
 
 import { subjectListQuerySchema, toApiNearbySubject, toApiSubject } from "~/lib/api/schemas";
 import { appContext } from "~/lib/context";
-import { decodeCursor, paginate } from "~/lib/cursor";
 import { parseLatLng } from "~/lib/geo";
+import { decodeCursor, paginate } from "~/lib/server/cursor";
 import {
 	TRIGRAM_QUERY_MIN,
 	listSubjects,

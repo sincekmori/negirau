@@ -12,8 +12,8 @@
  */
 
 import { fromBase64Url, toBase64Url } from "~/lib/base64url";
-import { perSecret } from "~/lib/derived-key";
 import { UNDO_WINDOW_MS } from "~/lib/reactions";
+import { perSecret } from "~/lib/server/derived-key";
 
 const encoder = new TextEncoder();
 
