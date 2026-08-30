@@ -4,15 +4,15 @@ import type * as z from "zod";
 
 import { subjectListQuerySchema, toApiNearbySubject, toApiSubject } from "~/lib/api/schemas";
 import { appContext } from "~/lib/context";
-import { decodeCursor, paginate } from "~/lib/cursor";
 import { parseLatLng } from "~/lib/geo";
+import { decodeCursor, paginate } from "~/lib/server/cursor";
 import {
 	TRIGRAM_QUERY_MIN,
 	listSubjects,
 	listSubjectsByNamePrefix,
 	listSubjectsNear,
 } from "~/lib/server/db";
-import { edgeCachedByUrl } from "~/lib/server/edge-cache";
+import { edgeCachedLoader } from "~/lib/server/edge-cache";
 import { publicJson } from "~/lib/server/public-json";
 import { apiError } from "~/lib/server/route-helpers";
 
@@ -65,11 +65,7 @@ async function pagedList(env: Env, query: Query, limit: number): Promise<Respons
 	});
 }
 
-export function loader(args: Route.LoaderArgs) {
-	// Read-only representation: served through the edge cache (URL-keyed).
-	const { ctx } = args.context.get(appContext);
-	return edgeCachedByUrl(args.request, ctx, () => Promise.resolve(produce(args)));
-}
+export const loader = edgeCachedLoader(produce);
 
 function produce({ request, context }: Route.LoaderArgs) {
 	const { env } = context.get(appContext);

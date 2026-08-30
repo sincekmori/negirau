@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { decodeCursor, encodeCursor } from "~/lib/cursor";
+import { decodeCursor, encodeCursor } from "~/lib/server/cursor";
 
 const SECRET = "test-secret";
 

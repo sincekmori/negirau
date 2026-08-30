@@ -4,16 +4,12 @@
 
 import { appContext } from "~/lib/context";
 import { listActiveIdsInRowidRange } from "~/lib/server/db";
-import { edgeCachedByUrl } from "~/lib/server/edge-cache";
+import { edgeCachedLoader } from "~/lib/server/edge-cache";
 import { SITEMAP_BLOCK_SIZE, urlEntries, urlsetResponse } from "~/lib/server/sitemap";
 
 import type { Route } from "./+types/sitemaps";
 
-export function loader(args: Route.LoaderArgs) {
-	// Read-only representation: served through the edge cache (URL-keyed).
-	const { ctx } = args.context.get(appContext);
-	return edgeCachedByUrl(args.request, ctx, () => Promise.resolve(produce(args)));
-}
+export const loader = edgeCachedLoader(produce);
 
 async function produce({ params, context }: Route.LoaderArgs) {
 	const { env, site } = context.get(appContext);

@@ -2,16 +2,12 @@
 
 import { appContext } from "~/lib/context";
 import { badgeResponse, renderBadgeSvg } from "~/lib/server/badge";
-import { edgeCachedByUrl } from "~/lib/server/edge-cache";
+import { edgeCachedLoader } from "~/lib/server/edge-cache";
 import { loadActiveSubject } from "~/lib/server/route-helpers";
 
 import type { Route } from "./+types/badge";
 
-export function loader(args: Route.LoaderArgs) {
-	// Read-only representation: served through the edge cache (URL-keyed).
-	const { ctx } = args.context.get(appContext);
-	return edgeCachedByUrl(args.request, ctx, () => produce(args));
-}
+export const loader = edgeCachedLoader(produce);
 
 async function produce({ params, context }: Route.LoaderArgs) {
 	const { env } = context.get(appContext);
