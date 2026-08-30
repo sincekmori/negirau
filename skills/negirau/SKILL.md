@@ -126,7 +126,7 @@ The end state is always a URL the human opens — never an API call.
 Assemble it like this:
 
 1. **Resolve the id.**
-   - Search by name: `GET {API}/subjects?q={name}` (or `client.subjects.list({ q })`) — substring match, Japanese and English; the `near` filter composes with it.
+   - Search by name: `GET {API}/subjects?q={name}` (or `client.subjects.list({ q })`) — substring match, Japanese and English. `near={lat},{lng}` is a separate mode rather than a filter layered on `q`: sending both answers the near search and ignores the name.
    - If nothing matches, point the human at `{ORIGIN}/subjects/new` — they can add the subject themselves in seconds.
 2. **Hand back the bare URL** `{ORIGIN}/subjects/{id}` and tell the human to tap a reaction there (tapping again undoes it for about a minute; each type once per subject per device per day).
 3. **Pick the URL variant for the context:**

@@ -46,7 +46,7 @@ export const API_OPERATIONS: ApiOperation[] = [
 		path: "/v1/subjects",
 		summary: "List and search subjects",
 		description:
-			"Cursor-paginated subject listing. `q` does free-text name search (Japanese and English): 1-2 characters match as a name prefix (single page), 3 or more match anywhere in the name. With `near`, switches to a distance-ordered search over subjects that have a spatial dimension (no cursor; results truncated at `limit`).",
+			"Cursor-paginated subject listing. `q` does free-text name search (Japanese and English): 1-2 characters match as a name prefix (single page), 3 or more match anywhere in the name. With `near`, switches to a distance-ordered search over subjects that have a spatial dimension (no cursor; results truncated at `limit`; a `q` sent alongside is ignored).",
 		query: subjectListQuerySchema,
 		// The near variant answers with distances and no cursor; the union keeps the spec honest.
 		response: z.union([subjectListResponseSchema, nearListResponseSchema]),
