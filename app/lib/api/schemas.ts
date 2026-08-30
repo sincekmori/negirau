@@ -98,7 +98,9 @@ export const subjectListQuerySchema = z.object({
 		.string()
 		.regex(/^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/)
 		.optional()
-		.describe("lat,lng — switches to distance-ordered near search (no cursor)"),
+		.describe(
+			"lat,lng — switches to distance-ordered near search (no cursor); a q sent alongside is ignored",
+		),
 	radius: z.coerce
 		.number()
 		.int()

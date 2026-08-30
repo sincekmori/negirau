@@ -16,7 +16,7 @@
       "get": {
         "operationId": "listSubjects",
         "summary": "List and search subjects",
-        "description": "Cursor-paginated subject listing. `q` does free-text name search (Japanese and English): 1-2 characters match as a name prefix (single page), 3 or more match anywhere in the name. With `near`, switches to a distance-ordered search over subjects that have a spatial dimension (no cursor; results truncated at `limit`).",
+        "description": "Cursor-paginated subject listing. `q` does free-text name search (Japanese and English): 1-2 characters match as a name prefix (single page), 3 or more match anywhere in the name. With `near`, switches to a distance-ordered search over subjects that have a spatial dimension (no cursor; results truncated at `limit`; a `q` sent alongside is ignored).",
         "x-mcp-tool-name": "negirau_list_subjects",
         "x-agent-description": "Search Negirau subjects (the recipients of appreciation). Use q for name search, near='lat,lng' for proximity search.",
         "parameters": [
@@ -36,9 +36,9 @@
             "name": "near",
             "in": "query",
             "required": false,
-            "description": "lat,lng — switches to distance-ordered near search (no cursor)",
+            "description": "lat,lng — switches to distance-ordered near search (no cursor); a q sent alongside is ignored",
             "schema": {
-              "description": "lat,lng — switches to distance-ordered near search (no cursor)",
+              "description": "lat,lng — switches to distance-ordered near search (no cursor); a q sent alongside is ignored",
               "type": "string",
               "pattern": "^-?\\d+(?:\\.\\d+)?,-?\\d+(?:\\.\\d+)?$"
             }
