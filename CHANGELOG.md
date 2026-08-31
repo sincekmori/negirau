@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/sincekmori/negirau/compare/v0.3.1...v0.3.2) (2026-08-31)
+
+
+### Bug Fixes
+
+* harden the reaction write path — unreadable cookies stop 500ing, undo vouchers become single-use ([e7d278f](https://github.com/sincekmori/negirau/commit/e7d278f80c0b0e9e4a7d35b0781eb63f534afcf4))
+
 ## [0.3.1](https://github.com/sincekmori/negirau/compare/v0.3.0...v0.3.1) (2026-08-30)
 
 
