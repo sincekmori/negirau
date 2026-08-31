@@ -26,4 +26,13 @@ describe("sent cookie", () => {
 		const value = withSent(withSent(undefined, "a", "heart", DAY), "a", "heart", DAY);
 		expect(value).toBe(`a:heart@${DAY}`);
 	});
+
+	it("treats an undecodable cookie as empty instead of throwing", () => {
+		// Truncated %-escapes reach the server from proxies and from curl; a
+		// throw here was a 500 on every send and undo for the cookie's Max-Age.
+		for (const broken of ["%", "%E0%A4%A", "a:heart@2026-08-15,%"]) {
+			expect(hasSent(broken, "a", "heart", DAY)).toBe(false);
+			expect(withSent(broken, "a", "heart", DAY)).toBe(`a:heart@${DAY}`);
+		}
+	});
 });

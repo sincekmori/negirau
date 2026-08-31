@@ -39,6 +39,21 @@ CREATE TABLE reaction_counts (
 -- No day index on purpose: every read leads with subject_rowid (PK prefix),
 -- and the operator's surgical day rollback (DELETE ... WHERE day = ?) is a
 -- rare full scan — cheaper than maintaining an index on every reaction.
+
+-- Undo vouchers are stateless HMACs; this table is what makes each one
+-- single-use. Consuming a voucher is an INSERT, and the primary key turns a
+-- replay into a conflict, atomically, however concurrent the requests are —
+-- without it one voucher could decrement, for its whole 60-second life, a day
+-- counter that other people's sends share. Zero-visitor-data holds: the row
+-- is a hash of the voucher (never the voucher itself) plus the voucher's own
+-- expiry. No IP, no identity. Every consume first deletes the expired rows,
+-- so the table never holds more than the last 60 seconds of undos and the
+-- sweep stays bounded.
+CREATE TABLE undo_receipts (
+  token_hash TEXT PRIMARY KEY,
+  expires_at TEXT NOT NULL
+) WITHOUT ROWID;
+
 -- Anonymous update/delete requests. With no auth there is nothing to apply
 -- them automatically against, so they queue here for the operator's daily
 -- review (applied via SQL, then the row is deleted). One live row per

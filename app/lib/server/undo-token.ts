@@ -47,14 +47,15 @@ export async function issueUndoToken(secret: string, scope: UndoScope): Promise<
 }
 
 /**
- * The day the voucher authorises, or undefined when it does not verify.
- * Callers decrement that day — never one read from the clock.
+ * The day the voucher authorises and the voucher's own expiry, or undefined
+ * when it does not verify. Callers decrement that day — never one read from
+ * the clock — and use the expiry to bound the consume receipt.
  */
 export async function verifyUndoToken(
 	secret: string,
 	token: string,
 	scope: Omit<UndoScope, "day">,
-): Promise<string | undefined> {
+): Promise<{ day: string; expiresAt: number } | undefined> {
 	const [expiresPart, day, signaturePart] = token.split(".");
 	if (expiresPart === undefined || day === undefined || signaturePart === undefined) {
 		return undefined;
@@ -79,5 +80,14 @@ export async function verifyUndoToken(
 		signature as unknown as ArrayBufferView<ArrayBuffer>,
 		payload({ ...scope, day }, expiresAt),
 	);
-	return valid ? day : undefined;
+	return valid ? { day, expiresAt } : undefined;
+}
+
+/**
+ * What the consume receipt stores: a digest, so the receipts table can never
+ * leak a voucher that is still within its window.
+ */
+export async function undoTokenHash(token: string): Promise<string> {
+	const digest = await crypto.subtle.digest("SHA-256", encoder.encode(token));
+	return toBase64Url(new Uint8Array(digest));
 }

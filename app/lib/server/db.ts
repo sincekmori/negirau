@@ -331,6 +331,28 @@ export async function recordReaction(
 		.run();
 }
 
+/**
+ * Marks one undo voucher as spent; false means it was spent already. The
+ * INSERT's primary-key conflict is the atomicity — two concurrent undos with
+ * the same voucher cannot both see changes = 1. The sweep keeps the table at
+ * the last UNDO_WINDOW_MS of undos, so both statements stay bounded.
+ */
+export async function consumeUndoReceipt(
+	db: D1Database,
+	tokenHash: string,
+	expiresAt: string,
+): Promise<boolean> {
+	const [, insert] = await db.batch([
+		db.prepare("DELETE FROM undo_receipts WHERE expires_at < ?").bind(new Date().toISOString()),
+		db
+			.prepare(
+				"INSERT INTO undo_receipts (token_hash, expires_at) VALUES (?, ?) ON CONFLICT DO NOTHING",
+			)
+			.bind(tokenHash, expiresAt),
+	]);
+	return (insert?.meta.changes ?? 0) === 1;
+}
+
 export async function revokeReaction(
 	db: D1Database,
 	subjectRowid: number,

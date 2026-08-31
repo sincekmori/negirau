@@ -13,10 +13,15 @@ import * as z from "zod";
 
 import { toIsoDate } from "~/lib/dates";
 import { REACTION_TYPES } from "~/lib/reactions";
-import { getActiveSubject, recordReaction, revokeReaction } from "~/lib/server/db";
+import {
+	consumeUndoReceipt,
+	getActiveSubject,
+	recordReaction,
+	revokeReaction,
+} from "~/lib/server/db";
 import { rateLimitKeyForIp, refuseAnonymousWrite, underLimit } from "~/lib/server/rate-limit";
 import { verifyTurnstileToken } from "~/lib/server/turnstile";
-import { issueUndoToken, verifyUndoToken } from "~/lib/server/undo-token";
+import { issueUndoToken, undoTokenHash, verifyUndoToken } from "~/lib/server/undo-token";
 
 // The subject id rides the URL (/subjects/{id}/reactions), so the bodies
 // carry only what the URL cannot.
@@ -114,13 +119,24 @@ export async function handleUndo(
 	}
 	// The voucher names the day it authorises; decrementing "today" would undo
 	// the wrong row for a send that straddled UTC midnight.
-	const day = await verifyUndoToken(env.TURNSTILE_SECRET_KEY, body.undo_token, {
+	const verified = await verifyUndoToken(env.TURNSTILE_SECRET_KEY, body.undo_token, {
 		subjectId: subject.rowid,
 		type: body.type,
 	});
-	if (day === undefined) {
+	if (verified === undefined) {
 		return { ok: false, status: 403, error: "invalid_undo_token" };
 	}
-	await revokeReaction(env.DB, subject.rowid, body.type, day);
-	return { ok: true, status: 200, day };
+	// One decrement per voucher: without this receipt a replay — a double-tap
+	// racing the cookie release, or a resent request — would keep draining a
+	// day counter that other people's sends share.
+	const consumed = await consumeUndoReceipt(
+		env.DB,
+		await undoTokenHash(body.undo_token),
+		new Date(verified.expiresAt).toISOString(),
+	);
+	if (!consumed) {
+		return { ok: false, status: 409, error: "already_undone" };
+	}
+	await revokeReaction(env.DB, subject.rowid, body.type, verified.day);
+	return { ok: true, status: 200, day: verified.day };
 }

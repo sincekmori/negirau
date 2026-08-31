@@ -19,7 +19,15 @@ function parseEntries(cookieValue: string | undefined): string[] {
 	if (cookieValue === undefined || cookieValue === "") {
 		return [];
 	}
-	return decodeURIComponent(cookieValue).split(",").filter(Boolean);
+	// A cookie we cannot decode (truncated %-escape from a proxy, or a
+	// hand-crafted one) records nothing: decodeURIComponent throws, and a
+	// throw here would be a 500 on every send and undo for the cookie's whole
+	// Max-Age. Treat it as empty — the next successful send overwrites it.
+	try {
+		return decodeURIComponent(cookieValue).split(",").filter(Boolean);
+	} catch {
+		return [];
+	}
 }
 
 export function hasSent(
