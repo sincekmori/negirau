@@ -27,7 +27,7 @@ export function CodeBlock({ code, m }: { code: string; m: ReturnType<typeof mess
 	}
 
 	return (
-		<div className="relative mt-2 max-w-full">
+		<div className="relative mbs-2 max-w-full">
 			{/* Wraps instead of scrolling: a scroll region would need to be
 			    keyboard-focusable (axe scrollable-region-focusable). */}
 			<pre className="border-hairline rounded border py-2 ps-3 pe-10 text-[0.8rem] wrap-anywhere whitespace-pre-wrap">
@@ -39,7 +39,7 @@ export function CodeBlock({ code, m }: { code: string; m: ReturnType<typeof mess
 				size="sm"
 				aria-label={m.copyButton}
 				title={m.copyButton}
-				className="absolute inset-e-1 top-1 size-7 rounded-md p-0 opacity-60 hover:opacity-100 focus-visible:opacity-100"
+				className="absolute inset-e-1 inset-bs-1 size-7 rounded-md p-0 opacity-60 hover:opacity-100 focus-visible:opacity-100"
 				onClick={() => void copy()}
 			>
 				{copied ? (

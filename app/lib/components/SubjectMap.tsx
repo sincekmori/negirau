@@ -37,5 +37,5 @@ export function SubjectMap({ lat, lng, label }: { lat: number; lng: number; labe
 		// navigation to another subject) disposes and boots the new spot.
 	}, [lat, lng, visible]);
 
-	return <section className={`${MAP_FRAME_CLASS} mt-4`} aria-label={label} ref={host} />;
+	return <section className={`${MAP_FRAME_CLASS} mbs-4`} aria-label={label} ref={host} />;
 }

@@ -56,7 +56,7 @@ export default function Site({ loaderData }: Route.ComponentProps) {
 			<meta property="og:type" content="website" />
 			<meta property="og:locale" content={OG_LOCALES[locale]} />
 			<meta property="og:locale:alternate" content={OG_LOCALES[otherLocale]} />
-			<header className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 pt-6">
+			<header className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 pbs-6">
 				<Link
 					to={`/${locale}`}
 					className="text-brand-deep inline-flex items-center gap-2 text-[1.05rem] font-medium tracking-wide no-underline"
@@ -84,22 +84,22 @@ export default function Site({ loaderData }: Route.ComponentProps) {
 					<ThemeToggle locale={locale} />
 				</nav>
 			</header>
-			{/* pt-8 keeps the site header visibly apart from every page's title —
+			{/* pbs-8 keeps the site header visibly apart from every page's title —
 			    wider than the title→content gaps below it, so grouping reads
 			    right. The home hero subtracts it from its own clamp. */}
-			<main className="mx-auto max-w-3xl px-6 pt-8 pb-14">
+			<main className="mx-auto max-w-3xl px-6 pbs-8 pbe-14">
 				<Outlet />
 			</main>
 			{/* Map attribution lives on the maps themselves (MapLibre's control),
 			    where the data is — a footer credit would read as authorship. */}
-			<footer className="border-hairline text-ink-soft border-t px-6 pt-9 pb-10 text-center text-[0.85rem]">
+			<footer className="border-hairline text-ink-soft border-bs px-6 pbs-9 pbe-10 text-center text-[0.85rem]">
 				<p>{m.footerTagline}</p>
-				<p className="mt-3 flex flex-wrap justify-center gap-4 [&_a]:text-inherit">
+				<p className="mbs-3 flex flex-wrap justify-center gap-4 [&_a]:text-inherit">
 					<Link to={`/${locale}/terms`}>{m.termsTitle}</Link>
 					<Link to={`/${locale}/privacy`}>{m.privacyTitle}</Link>
 					<Link to={`/${locale}/contact`}>{m.navContact}</Link>
 				</p>
-				<p className="mt-3">{copyright}</p>
+				<p className="mbs-3">{copyright}</p>
 			</footer>
 		</>
 	);

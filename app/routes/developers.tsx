@@ -61,13 +61,13 @@ export default function Developers({ loaderData }: Route.ComponentProps) {
 			<title>{`${m.devPageTitle} | Negirau`}</title>
 			<meta name="description" content={m.devPageIntro} />
 			<h1 className="text-2xl font-semibold">{m.devPageTitle}</h1>
-			<p className="mt-4">{m.devPageIntro}</p>
+			<p className="mbs-4">{m.devPageIntro}</p>
 
-			<section className="mt-10">
+			<section className="mbs-10">
 				<h2>{m.devApiHeading}</h2>
-				<p className="text-ink-soft mt-2">{m.devApiBody}</p>
+				<p className="text-ink-soft mbs-2">{m.devApiBody}</p>
 				<CodeBlock code={curl} m={m} />
-				<ul className="mt-4 flex flex-col gap-1 text-[0.9rem]">
+				<ul className="mbs-4 flex flex-col gap-1 text-[0.9rem]">
 					{endpoints.map((endpoint) => (
 						<li key={endpoint.operationId} className="flex flex-wrap gap-x-3">
 							<code className="text-brand-deep shrink-0">GET {endpoint.path}</code>
@@ -77,20 +77,20 @@ export default function Developers({ loaderData }: Route.ComponentProps) {
 						</li>
 					))}
 				</ul>
-				<p className="mt-4 text-[0.9rem]">
+				<p className="mbs-4 text-[0.9rem]">
 					<a href={specHref}>{m.devSpecLabel}</a>
 				</p>
 			</section>
 
-			<section className="mt-10">
+			<section className="mbs-10">
 				<h2>{m.devClientsHeading}</h2>
-				<p className="text-ink-soft mt-2">{m.devClientsBody}</p>
+				<p className="text-ink-soft mbs-2">{m.devClientsBody}</p>
 				{clients.map((client) => (
 					<div key={client.name}>
-						<h3 className="mt-5 text-[0.95rem] font-semibold">{client.name}</h3>
+						<h3 className="mbs-5 text-[0.95rem] font-semibold">{client.name}</h3>
 						<CodeBlock code={client.install} m={m} />
 						<CodeBlock code={client.snippet} m={m} />
-						<p className="mt-2 text-[0.9rem]">
+						<p className="mbs-2 text-[0.9rem]">
 							<a href={client.registryHref} rel="external">
 								{client.registryLabel}
 							</a>
@@ -99,39 +99,39 @@ export default function Developers({ loaderData }: Route.ComponentProps) {
 				))}
 			</section>
 
-			<section className="mt-10">
+			<section className="mbs-10">
 				<h2>{m.devMcpHeading}</h2>
-				<p className="text-ink-soft mt-2">{m.devMcpBody}</p>
+				<p className="text-ink-soft mbs-2">{m.devMcpBody}</p>
 				<CodeBlock code="npx negirau-mcp" m={m} />
-				<p className="mt-2 text-[0.9rem]">
+				<p className="mbs-2 text-[0.9rem]">
 					<a href="https://www.npmjs.com/package/negirau-mcp" rel="external">
 						npm: negirau-mcp
 					</a>
 				</p>
 			</section>
 
-			<section className="mt-10">
+			<section className="mbs-10">
 				<h2>{m.devSkillHeading}</h2>
-				<p className="text-ink-soft mt-2">{m.devSkillBody}</p>
+				<p className="text-ink-soft mbs-2">{m.devSkillBody}</p>
 				<CodeBlock code="npx skills add sincekmori/negirau" m={m} />
 			</section>
 
-			<section className="mt-10">
+			<section className="mbs-10">
 				<h2>
 					<a href="https://llmstxt.org/" rel="external">
 						llms.txt
 					</a>
 				</h2>
-				<p className="text-ink-soft mt-2">{m.devLlmsBody}</p>
+				<p className="text-ink-soft mbs-2">{m.devLlmsBody}</p>
 				{/* A list, so llms-full.txt and friends slot in without redesign. */}
-				<ul className="mt-2 flex flex-col gap-1 text-[0.9rem]">
+				<ul className="mbs-2 flex flex-col gap-1 text-[0.9rem]">
 					<li>
 						<a href="/llms.txt">llms.txt</a>
 					</li>
 				</ul>
 			</section>
 
-			<p className="mt-10">
+			<p className="mbs-10">
 				<a href={GITHUB_URL} rel="external">
 					{m.devGithubLabel}
 				</a>

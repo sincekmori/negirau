@@ -36,7 +36,7 @@
       "bun",
       "./worker-configuration.d.ts",
       // cloudflare:test module types for the vitest workers pool (tests/).
-      "@cloudflare/vitest-pool-workers/types"
+      "@cloudflare/vitest-plugin/types"
     ]
   }
 }

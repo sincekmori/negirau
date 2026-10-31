@@ -4,7 +4,7 @@ export function toBase64Url(bytes: Uint8Array): string {
 	return btoa(String.fromCodePoint(...bytes))
 		.replaceAll("+", "-")
 		.replaceAll("/", "_")
-		.replace(/=+$/, "");
+		.replace(/[=]+$/, "");
 }
 
 export function fromBase64Url(value: string): Uint8Array {

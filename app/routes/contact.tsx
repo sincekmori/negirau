@@ -27,8 +27,8 @@ export default function Contact({ loaderData }: Route.ComponentProps) {
 			<title>{`${m.contactTitle} | Negirau`}</title>
 			<meta name="robots" content="noindex" />
 			<h1 className="text-2xl font-semibold">{m.contactTitle}</h1>
-			<p className="mt-4">{m.contactBody}</p>
-			<p className="mt-6 flex justify-end">
+			<p className="mbs-4">{m.contactBody}</p>
+			<p className="mbs-6 flex justify-end">
 				<ActionButton
 					href={contactMailto(contactEmail, m.contactMailSubject)}
 					size="lg"

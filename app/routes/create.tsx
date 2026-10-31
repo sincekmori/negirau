@@ -107,9 +107,9 @@ export default function Create({ loaderData }: Route.ComponentProps) {
 			<title>{`${m.createTitle} | Negirau`}</title>
 			<meta name="robots" content="noindex" />
 			<h1 className="text-2xl font-semibold">{m.createTitle}</h1>
-			<p className="mt-4">{m.createIntro}</p>
+			<p className="mbs-4">{m.createIntro}</p>
 
-			<form className="mt-8 flex flex-col gap-6" onSubmit={review}>
+			<form className="mbs-8 flex flex-col gap-6" onSubmit={review}>
 				{/* The one real choice up front: how the name arrives. */}
 				<fieldset aria-label={m.createModeLegend} className="flex flex-wrap gap-1">
 					{MODES.map((candidate) => (
@@ -197,7 +197,7 @@ export default function Create({ loaderData }: Route.ComponentProps) {
 				)}
 			</OverlayDialog>
 
-			<div ref={hostRef} className="fixed inset-e-2 bottom-2" />
+			<div ref={hostRef} className="fixed inset-e-2 inset-be-2" />
 		</>
 	);
 }

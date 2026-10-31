@@ -5,6 +5,7 @@ import { Link } from "react-router";
 
 import { OG_TEMPLATE_VERSION } from "~/lib/brand";
 import { alreadySentToday, markSentToday, unmarkSentToday } from "~/lib/client/sent-log";
+import { settle } from "~/lib/client/settle";
 import { mountTurnstile } from "~/lib/client/turnstile";
 import type { TokenProvider } from "~/lib/client/turnstile";
 import { EmbedDialog } from "~/lib/components/EmbedDialog";
@@ -163,45 +164,49 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 		if (sending || alreadySentToday(subject.id, type) || !tokens.current) {
 			return;
 		}
+		const provider = tokens.current;
 		setSending(true);
 		setNotice(undefined);
-		try {
-			const token = await tokens.current.take();
-			const response = await fetch(`/subjects/${subject.id}/reactions`, {
-				method: "POST",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ type, token }),
-			});
-			if (response.status === 429) {
-				setNotice(m.noticeRateLimited);
-				return;
-			}
-			if (response.status === 409) {
-				// The server-side dedupe cookie already saw today's send of this type.
-				markSentToday(subject.id, type);
-				refreshSentTypes();
-				setNotice(m.sentAlreadyToday);
-				return;
-			}
-			if (!response.ok) {
-				setNotice(m.noticeSendFailed);
-				return;
-			}
-			const body = (await response.json()) as { undo_token: string };
-			markSentToday(subject.id, type);
-			refreshSentTypes();
-			setDelta((current) => ({ ...current, [type]: (current[type] ?? 0) + 1 }));
-			setPendingUndo({ type, token: body.undo_token });
-			clearTimeout(undoTimer.current);
-			undoTimer.current = setTimeout(() => setPendingUndo(undefined), UNDO_WINDOW_MS);
-			if (celebrate) {
-				setCelebrated(type);
-			}
-		} catch {
-			setNotice(m.noticeNetworkFailed);
-		} finally {
-			setSending(false);
-		}
+		await settle(
+			async () => {
+				try {
+					const token = await provider.take();
+					const response = await fetch(`/subjects/${subject.id}/reactions`, {
+						method: "POST",
+						headers: { "content-type": "application/json" },
+						body: JSON.stringify({ type, token }),
+					});
+					if (response.status === 429) {
+						setNotice(m.noticeRateLimited);
+						return;
+					}
+					if (response.status === 409) {
+						// The server-side dedupe cookie already saw today's send of this type.
+						markSentToday(subject.id, type);
+						refreshSentTypes();
+						setNotice(m.sentAlreadyToday);
+						return;
+					}
+					if (!response.ok) {
+						setNotice(m.noticeSendFailed);
+						return;
+					}
+					const body = (await response.json()) as { undo_token: string };
+					markSentToday(subject.id, type);
+					refreshSentTypes();
+					setDelta((current) => ({ ...current, [type]: (current[type] ?? 0) + 1 }));
+					setPendingUndo({ type, token: body.undo_token });
+					clearTimeout(undoTimer.current);
+					undoTimer.current = setTimeout(() => setPendingUndo(undefined), UNDO_WINDOW_MS);
+					if (celebrate) {
+						setCelebrated(type);
+					}
+				} catch {
+					setNotice(m.noticeNetworkFailed);
+				}
+			},
+			() => setSending(false),
+		);
 	}
 
 	// An effect event, so the one-shot boot reads the latest handlers and site
@@ -243,22 +248,25 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 		setPendingUndo(undefined);
 		setSending(true);
 		setNotice(undefined);
-		try {
-			const response = await fetch(`/subjects/${subject.id}/reactions`, {
-				method: "DELETE",
-				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ type, undo_token: token }),
-			});
-			if (response.ok) {
-				unmarkSentToday(subject.id, type);
-				refreshSentTypes();
-				setDelta((current) => ({ ...current, [type]: (current[type] ?? 0) - 1 }));
-			}
-		} catch {
-			setNotice(m.noticeNetworkFailed);
-		} finally {
-			setSending(false);
-		}
+		await settle(
+			async () => {
+				try {
+					const response = await fetch(`/subjects/${subject.id}/reactions`, {
+						method: "DELETE",
+						headers: { "content-type": "application/json" },
+						body: JSON.stringify({ type, undo_token: token }),
+					});
+					if (response.ok) {
+						unmarkSentToday(subject.id, type);
+						refreshSentTypes();
+						setDelta((current) => ({ ...current, [type]: (current[type] ?? 0) - 1 }));
+					}
+				} catch {
+					setNotice(m.noticeNetworkFailed);
+				}
+			},
+			() => setSending(false),
+		);
 	}
 
 	function countOf(type: ReactionType): number {
@@ -309,7 +317,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 				    message: chips for what the subject already holds, a picker for the
 				    rest. A pressed chip taps back off while its undo voucher lives —
 				    no text, the chip itself is the feedback. */}
-				<section className="mt-6 flex flex-wrap items-center gap-2">
+				<section className="mbs-6 flex flex-wrap items-center gap-2">
 					{chipTypes.map((type) => {
 						const sent = sentTypes.includes(type);
 						const undoable = sent && pendingUndo?.type === type;
@@ -369,13 +377,13 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 				    meeting and the room can scan and send on the spot. */}
 				{/* The sharing zone, visually its own thing: a hairline above, then
 				    one centered column — QR card, emoji dial, hint, share hub. */}
-				<section className="border-hairline mt-12 flex flex-col items-center gap-3 border-t pt-8 text-center">
+				<section className="border-hairline mbs-12 flex flex-col items-center gap-3 border-bs pbs-8 text-center">
 					<div className="bg-paper-fixed text-ink-fixed w-fit rounded-lg px-3 py-2 shadow-sm">
 						{/* One width knob: the QR fills this column and the caption
 						    truncates to it, so neither can drift from the other. */}
 						<div className="w-36">
 							{/* Name only: the pin lives inside the QR itself. */}
-							<p className="mb-1 truncate text-[0.8rem] font-medium">{subject.name}</p>
+							<p className="mbe-1 truncate text-[0.8rem] font-medium">{subject.name}</p>
 							{/* Decorative for readers: the caption and hint already say it. */}
 							<div
 								aria-hidden="true"
@@ -383,7 +391,9 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 								className="aspect-square w-full [&_svg]:size-full"
 								dangerouslySetInnerHTML={{ __html: qrSvg }}
 							/>
-							<p className="mt-1 text-[0.8rem] font-medium">{m.sendVerb(REACTION_EMOJI[qrType])}</p>
+							<p className="mbs-1 text-[0.8rem] font-medium">
+								{m.sendVerb(REACTION_EMOJI[qrType])}
+							</p>
 						</div>
 					</div>
 					<fieldset aria-label={m.qrTypePickerLabel} className="flex gap-1">
@@ -438,7 +448,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 					{celebrated === undefined ? "" : m.sentAnnounce}
 				</span>
 
-				<p className="text-ink-soft mt-10 text-[0.8rem]">
+				<p className="text-ink-soft mbs-10 text-[0.8rem]">
 					{/* Wrong name, unwanted subject: the edit page queues the request. */}
 					<Link className="text-inherit" to={`/${locale}/subjects/${subject.id}/edit`}>
 						{m.subjectReportLink}
@@ -446,7 +456,7 @@ export default function Subject({ loaderData }: Route.ComponentProps) {
 				</p>
 			</article>
 
-			<div ref={turnstileHost} className="fixed inset-e-2 bottom-2" />
+			<div ref={turnstileHost} className="fixed inset-e-2 inset-be-2" />
 		</>
 	);
 }

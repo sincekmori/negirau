@@ -24,12 +24,12 @@ export function PolicyPage({
 			<meta name="robots" content="noindex" />
 			<h1 className="text-2xl font-semibold">{title}</h1>
 			{sections.map((section) => (
-				<section key={section.title} className="mt-8">
+				<section key={section.title} className="mbs-8">
 					<h2 className="text-lg font-semibold">{section.title}</h2>
-					<p className="mt-2">{section.body}</p>
+					<p className="mbs-2">{section.body}</p>
 				</section>
 			))}
-			<p className="mt-8">
+			<p className="mbs-8">
 				<Link to={`/${locale}/contact`}>{m.navContact}</Link>
 			</p>
 		</>

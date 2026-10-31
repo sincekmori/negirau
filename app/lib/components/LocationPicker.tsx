@@ -91,7 +91,7 @@ function PlaceHits({
 	return (
 		<ul>
 			{hits.map((hit) => (
-				<li key={hit.label} className="border-hairline border-b">
+				<li key={hit.label} className="border-hairline border-be">
 					<button
 						type="button"
 						className="hover:bg-brand-wash w-full px-3 py-1.5 text-start text-[0.9rem]"
@@ -265,7 +265,7 @@ export function LocationPicker({
 					onChange={(event) => search.onQueryChange(event.target.value)}
 				/>
 				{search.hits !== undefined && (
-					<div className="border-hairline bg-paper absolute inset-x-0 top-full z-20 mt-1 rounded-md border shadow-md">
+					<div className="border-hairline bg-paper absolute inset-x-0 inset-bs-full z-20 mbs-1 rounded-md border shadow-md">
 						<PlaceHits hits={search.hits} noHitsLabel={m.searchNoHits} onPick={pickPlace} />
 					</div>
 				)}
