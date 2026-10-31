@@ -70,9 +70,11 @@ updates:
         patterns: ["*"]
     cooldown:
       default-days: 7
-    # A published library: widen keeps pyproject's lower bounds where they are
-    # and moves uv.lock, instead of raising every floor to the newest release.
-    versioning-strategy: "widen"
+    # A published library: never rewrite pyproject's lower bounds, only move
+    # uv.lock. GitHub rejects "widen" for uv (allowed: lockfile-only, auto,
+    # increase, increase-if-necessary); transitive pins only move when a direct
+    # dependency does (dependabot/dependabot-core#14073).
+    versioning-strategy: "lockfile-only"
     commit-message:
       prefix: "build"
       include: "scope"
