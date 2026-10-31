@@ -18,6 +18,9 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    // tsdown 0.23 emits the .d.ts through Oxc under TypeScript 7, which needs every export typed explicitly.
+    "declaration": true,
+    "isolatedDeclarations": true,
     "skipLibCheck": true,
     "noEmit": true,
     // Browser/edge-first client: no Node ambient globals.
