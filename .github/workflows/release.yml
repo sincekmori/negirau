@@ -115,7 +115,7 @@ jobs:
         with:
           persist-credentials: false
       # Exact version: astral-sh stopped publishing moving major tags after v7.
-      - uses: astral-sh/setup-uv@v10.0.1
+      - uses: astral-sh/setup-uv@v10.3.2
       - run: uv build
         working-directory: packages/client-py
       # Trusted publishing is auto-detected in GitHub Actions.
