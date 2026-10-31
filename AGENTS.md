@@ -120,9 +120,14 @@ There is no admin UI: the operator works directly on D1 (Cloudflare console or `
   (2) everything else shares ONE project version (fixed/lockstep versioning, Angular-style): root package.json is the canonical copy, and release-please's single root component fans it out via `extra-files` to both clients, mcp-server, and server.json (×2); openapi.json `info.version` and the skill frontmatter are generated from root package.json at build time, and the committed spec snapshot under `skills/negirau/references/` carries the same number (the release-sync workflow re-locks uv and regenerates all of `skills/negirau/` on release branches, not just SKILL.md).
   Equal numbers everywhere with no rules to read; unchanged packages ship empty releases by design.
   `tests/versions.test.ts` asserts total equality continuously — a manual edit to any one field fails CI.
-  Any conventional commit merged to main advances the version (docs/chore → patch, feat → minor, breaking → minor while pre-1.0 via `bump-minor-pre-major`); 1.0.0 is only ever taken deliberately, with a `Release-As: 1.0.0` commit.
+  Only a commit whose type renders in the changelog releases: fix/perf/revert → patch, feat → minor, breaking → minor while pre-1.0 via `bump-minor-pre-major`; hidden types (docs, chore, build, ci, refactor, test, style) and messages that are not conventional leave the version alone, so a dependency bump ships with the next feat/fix rather than on its own.
+  1.0.0 is only ever taken deliberately, with a `Release-As: 1.0.0` commit.
   Client↔spec compatibility is guaranteed by the contract tests (operation coverage both directions), not by comparing version numbers.
   Merge release PRs promptly after contract changes: the deployed spec serves new content under the old number until the merge.
+- Dependency updates are Dependabot's (`.github/dependabot.yml`): one grouped PR per ecosystem per week (the bun root, the two pnpm packages, uv, GitHub Actions) behind a 7-day cooldown that mirrors the `minimumReleaseAge` in `bunfig.toml` and both `pnpm-workspace.yaml` files — change one, change all three.
+  The PRs land as `build(deps)` / `ci` commits, which release-please hides, so a bump never releases on its own.
+  oxfmt and zod stay outside the group on purpose: oxfmt formats the generated SKILL.md and zod emits the spec's JSON Schema, so either bump can move the committed `skills/negirau/` snapshot, which Dependabot cannot regenerate — run `bun run generate:skill` on those PRs and commit the result (Dependabot stops rebasing a PR once someone else pushes to it, which is fine).
+  client-py is a published library, so its entry pins `versioning-strategy: widen` and pyproject's lower bounds stay where they are.
 
 ## Where to look first
 

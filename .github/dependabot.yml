@@ -1,3 +1,8 @@
+# Weekly dependency PRs for every ecosystem in the repo, one grouped PR each.
+# The 7-day cooldown mirrors the install-time minimumReleaseAge in bunfig.toml
+# and in both packages/*/pnpm-workspace.yaml — change one, change all three.
+# Prefixes are the commit types release-please hides (build, ci), so a bump
+# never releases on its own; it ships with the next feat/fix (AGENTS.md).
 version: 2
 updates:
   - package-ecosystem: "github-actions"
@@ -9,6 +14,9 @@ updates:
         patterns: ["*"]
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: "ci"
+
   - package-ecosystem: "bun"
     directory: "/"
     schedule:
@@ -16,10 +24,17 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+        # oxfmt formats the generated SKILL.md and zod emits the spec's JSON
+        # Schema, so either bump can move the committed skills/negirau snapshot,
+        # which Dependabot cannot regenerate (check:drift). Kept out of the group
+        # so the weekly PR stays green; run `bun run generate:skill` on theirs.
+        exclude-patterns: ["oxfmt", "zod"]
     cooldown:
       default-days: 7
-      # First-party exemptions must match bunfig.toml's cooldown settings — keep both in sync.
-      exclude: []
+    commit-message:
+      prefix: "build"
+      include: "scope"
+
   - package-ecosystem: "npm" # packages/client-ts uses pnpm (published npm package)
     directory: "/packages/client-ts"
     schedule:
@@ -29,8 +44,10 @@ updates:
         patterns: ["*"]
     cooldown:
       default-days: 7
-      # First-party exemptions must match the pnpm minimumReleaseAge excludes — keep both in sync.
-      exclude: []
+    commit-message:
+      prefix: "build"
+      include: "scope"
+
   - package-ecosystem: "npm" # packages/mcp-server uses pnpm (published npm package)
     directory: "/packages/mcp-server"
     schedule:
@@ -40,7 +57,10 @@ updates:
         patterns: ["*"]
     cooldown:
       default-days: 7
-      exclude: []
+    commit-message:
+      prefix: "build"
+      include: "scope"
+
   - package-ecosystem: "uv" # packages/client-py
     directory: "/packages/client-py"
     schedule:
@@ -50,3 +70,9 @@ updates:
         patterns: ["*"]
     cooldown:
       default-days: 7
+    # A published library: widen keeps pyproject's lower bounds where they are
+    # and moves uv.lock, instead of raising every floor to the newest release.
+    versioning-strategy: "widen"
+    commit-message:
+      prefix: "build"
+      include: "scope"
