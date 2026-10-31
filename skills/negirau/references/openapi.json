@@ -103,24 +103,16 @@
                                 "type": "string"
                               },
                               "lat": {
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ],
-                                "description": "Spatial dimension (optional)"
+                                "description": "Spatial dimension (optional)",
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
                               },
                               "lng": {
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
+                                "type": [
+                                  "number",
+                                  "null"
                                 ]
                               }
                             },
@@ -134,15 +126,11 @@
                           }
                         },
                         "next_cursor": {
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ],
-                          "description": "Opaque keyset cursor; null on the last page. Absent semantics for near queries."
+                          "description": "Opaque keyset cursor; null on the last page. Absent semantics for near queries.",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
                         }
                       },
                       "required": [
@@ -167,24 +155,16 @@
                                 "type": "string"
                               },
                               "lat": {
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ],
-                                "description": "Spatial dimension (optional)"
+                                "description": "Spatial dimension (optional)",
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
                               },
                               "lng": {
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
+                                "type": [
+                                  "number",
+                                  "null"
                                 ]
                               },
                               "distance_m": {
@@ -269,24 +249,16 @@
                       "type": "string"
                     },
                     "lat": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ],
-                      "description": "Spatial dimension (optional)"
+                      "description": "Spatial dimension (optional)",
+                      "type": [
+                        "number",
+                        "null"
+                      ]
                     },
                     "lng": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
+                      "type": [
+                        "number",
+                        "null"
                       ]
                     }
                   },
