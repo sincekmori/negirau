@@ -57,10 +57,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 			<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
 
 			{/* Hero breathing room, net of the 2rem the layout's main already adds. */}
-			<section className="pt-[clamp(1.5rem,calc(11vh-2rem),4.5rem)] pb-[clamp(3rem,8vh,5rem)] text-center">
+			<section className="pbs-[clamp(1.5rem,calc(11vh-2rem),4.5rem)] pbe-[clamp(3rem,8vh,5rem)] text-center">
 				{/* The heart-pin, drawn like a single stroke (outline from BrandIcon). */}
 				<svg
-					className="pin-draw text-brand mx-auto mb-[clamp(1.4rem,4vh,2.4rem)] w-[clamp(3.5rem,8vw,4.5rem)]"
+					className="pin-draw text-brand mx-auto mbe-[clamp(1.4rem,4vh,2.4rem)] w-[clamp(3.5rem,8vw,4.5rem)]"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
@@ -79,57 +79,57 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 						</span>
 					))}
 				</h1>
-				<p className="text-ink-soft mx-auto mt-6 max-w-xl">{m.heroBody}</p>
-				<div className="mt-10 flex flex-wrap items-center justify-center gap-6">
+				<p className="text-ink-soft mx-auto mbs-6 max-w-xl">{m.heroBody}</p>
+				<div className="mbs-10 flex flex-wrap items-center justify-center gap-6">
 					<ActionButton to={`/${locale}/subjects/new`} size="lg" icon={CirclePlus}>
 						{m.heroCtaCreate}
 					</ActionButton>
 					<a
 						href="#nearby"
-						className="border-hairline text-ink-soft hover:text-ink border-b text-[0.9rem] no-underline hover:border-current"
+						className="border-hairline text-ink-soft hover:text-ink border-be text-[0.9rem] no-underline hover:border-current"
 					>
 						{m.heroCtaNearby}
 					</a>
 				</div>
 			</section>
 
-			<div className="border-hairline border-t pt-10 pb-12">
+			<div className="border-hairline border-bs pbs-10 pbe-12">
 				<SubjectSearch locale={locale} />
 			</div>
 
-			<section className="border-hairline border-t pt-10 pb-12">
+			<section className="border-hairline border-bs pbs-10 pbe-12">
 				<h2>{m.recentHeading}</h2>
 				<SubjectPills locale={locale} subjects={recent} />
 				{recent.length > 0 && (
-					<p className="mt-6 text-[0.9rem]">
+					<p className="mbs-6 text-[0.9rem]">
 						<Link to={`/${locale}/subjects`}>{m.subjectsAllLink}</Link>
 					</p>
 				)}
 			</section>
 
-			<div className="border-hairline border-t pt-10 pb-12" id="nearby">
+			<div className="border-hairline border-bs pbs-10 pbe-12" id="nearby">
 				<NearbyFinder locale={locale} />
 			</div>
 
-			<section className="border-hairline border-t pt-10 pb-12">
+			<section className="border-hairline border-bs pbs-10 pbe-12">
 				<h2>{m.howHeading}</h2>
 				{/* Mobile-first: one column, three from 40rem up. */}
-				<ol className="grid grid-cols-1 gap-6 min-[40rem]:grid-cols-3 min-[40rem]:gap-8">
+				<ol className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
 					{m.howSteps.map((step, index) => (
 						<li key={step.title}>
 							<span className="text-brand-deep block text-[0.8rem] tracking-widest">
 								{index + 1}
 							</span>
-							<h3 className="mt-1 mb-2 text-base font-semibold">{step.title}</h3>
+							<h3 className="mbs-1 mbe-2 text-base font-semibold">{step.title}</h3>
 							<p className="text-ink-soft text-[0.88rem]">{step.body}</p>
 						</li>
 					))}
 				</ol>
 			</section>
 
-			<section className="border-hairline border-t pt-10 pb-12">
+			<section className="border-hairline border-bs pbs-10 pbe-12">
 				<h2>{m.devHeading}</h2>
-				<p className="text-ink-soft mb-4">{m.devBody}</p>
+				<p className="text-ink-soft mbe-4">{m.devBody}</p>
 				<p className="text-[0.9rem]">
 					<Link to={`/${locale}/developers`}>{m.devPageLinkLabel}</Link>
 				</p>

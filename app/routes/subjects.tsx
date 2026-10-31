@@ -59,16 +59,16 @@ export default function Subjects({ loaderData }: Route.ComponentProps) {
 			<title>{`${m.subjectsTitle} | Negirau`}</title>
 			<meta name="description" content={m.subjectsIntro} />
 			<h1 className="text-2xl font-semibold">{m.subjectsTitle}</h1>
-			<p className="text-ink-soft mt-4">{m.subjectsIntro}</p>
+			<p className="text-ink-soft mbs-4">{m.subjectsIntro}</p>
 
-			<div className="mt-8">
+			<div className="mbs-8">
 				<SubjectSearch locale={locale} />
 			</div>
 
-			<section className="mt-10">
+			<section className="mbs-10">
 				<SubjectPills locale={locale} subjects={subjects} />
 				{nextCursor !== null && (
-					<p className="mt-8">
+					<p className="mbs-8">
 						<Link to={`/${locale}/subjects?cursor=${nextCursor}`}>{m.subjectsMore}</Link>
 					</p>
 				)}

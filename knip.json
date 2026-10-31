@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["app/routes/**/*.{ts,tsx}", "scripts/**/*.ts", "tests/**/*.ts"],
   "project": ["app/**", "workers/**", "scripts/**", "tests/**"],
-  // "cloudflare:test" is the vitest-pool-workers virtual module, not an npm package.
+  // "cloudflare:test" is the @cloudflare/vitest-plugin virtual module, not an npm package.
   // "axe-core" is loaded as a file asset (axe.min.js) by scripts/a11y.ts, not imported.
   "ignoreDependencies": ["cloudflare", "axe-core"],
   // typos is a Homebrew-managed CLI (crate-ci/typos), not an npm dependency.

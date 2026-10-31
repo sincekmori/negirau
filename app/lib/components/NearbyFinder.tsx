@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { nearbySubjects } from "~/lib/client/api";
 import { currentPosition } from "~/lib/client/geolocation";
+import { settle } from "~/lib/client/settle";
 import { ActionButton } from "~/lib/components/ActionButton";
 import { haversineMeters } from "~/lib/geo";
 import { encodeGeohash, geohashBounds } from "~/lib/geohash";
@@ -40,45 +41,50 @@ export function NearbyFinder({ locale }: { locale: Locale }) {
 		}
 		setSearching(true);
 		setMessage(undefined);
-		try {
-			const position = await currentPosition();
-			const { latitude, longitude } = position.coords;
-			const cell = geohashBounds(encodeGeohash(latitude, longitude));
-			const centerLat = (cell.minLat + cell.maxLat) / 2;
-			const centerLng = (cell.minLng + cell.maxLng) / 2;
-			let subjects: Awaited<ReturnType<typeof nearbySubjects>>;
-			try {
-				subjects = await nearbySubjects({
-					lat: centerLat,
-					lng: centerLng,
-					radius: SEARCH_RADIUS_M,
-					limit: 100,
-				});
-			} catch {
-				setMessage(m.nearbyDataUnavailable);
-				return;
-			}
-			setHits(
-				subjects
-					.map((subject) => ({
-						id: subject.id,
-						name: subject.name,
-						distanceM: Math.round(haversineMeters(latitude, longitude, subject.lat, subject.lng)),
-					}))
-					.toSorted((a, b) => a.distanceM - b.distanceM)
-					.slice(0, MAX_HITS),
-			);
-		} catch {
-			setMessage(m.nearbyPositionFailed);
-		} finally {
-			setSearching(false);
-		}
+		await settle(
+			async () => {
+				try {
+					const position = await currentPosition();
+					const { latitude, longitude } = position.coords;
+					const cell = geohashBounds(encodeGeohash(latitude, longitude));
+					const centerLat = (cell.minLat + cell.maxLat) / 2;
+					const centerLng = (cell.minLng + cell.maxLng) / 2;
+					let subjects: Awaited<ReturnType<typeof nearbySubjects>>;
+					try {
+						subjects = await nearbySubjects({
+							lat: centerLat,
+							lng: centerLng,
+							radius: SEARCH_RADIUS_M,
+							limit: 100,
+						});
+					} catch {
+						setMessage(m.nearbyDataUnavailable);
+						return;
+					}
+					setHits(
+						subjects
+							.map((subject) => ({
+								id: subject.id,
+								name: subject.name,
+								distanceM: Math.round(
+									haversineMeters(latitude, longitude, subject.lat, subject.lng),
+								),
+							}))
+							.toSorted((a, b) => a.distanceM - b.distanceM)
+							.slice(0, MAX_HITS),
+					);
+				} catch {
+					setMessage(m.nearbyPositionFailed);
+				}
+			},
+			() => setSearching(false),
+		);
 	}
 
 	return (
 		<section>
 			<h2>{m.nearbyHeading}</h2>
-			<p className="text-ink-soft mb-4 text-[0.8rem]">{m.nearbyPrivacyNote}</p>
+			<p className="text-ink-soft mbe-4 text-[0.8rem]">{m.nearbyPrivacyNote}</p>
 			<ActionButton
 				icon={LocateFixed}
 				onClick={() => void locate()}
@@ -88,14 +94,14 @@ export function NearbyFinder({ locale }: { locale: Locale }) {
 			>
 				{searching ? m.nearbySearching : m.nearbyButton}
 			</ActionButton>
-			{message !== undefined && <p className="mt-3">{message}</p>}
+			{message !== undefined && <p className="mbs-3">{message}</p>}
 			{hits !== undefined &&
 				(hits.length === 0 ? (
-					<p className="mt-3">{m.nearbyNoHits}</p>
+					<p className="mbs-3">{m.nearbyNoHits}</p>
 				) : (
-					<ul className="mt-4">
+					<ul className="mbs-4">
 						{hits.map((hit) => (
-							<li key={hit.id} className="border-hairline flex justify-between border-b py-1.5">
+							<li key={hit.id} className="border-hairline flex justify-between border-be py-1.5">
 								<a href={`/${locale}/subjects/${hit.id}`}>{hit.name}</a>
 								<span className="text-ink-soft text-[0.85rem]">
 									{formatDistance(hit.distanceM)}

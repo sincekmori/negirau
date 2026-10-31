@@ -172,7 +172,7 @@ export default function Poster({ loaderData }: Route.ComponentProps) {
 			{/* The printed page must be the sheet, not the browser's default paper. */}
 			<style>{`@page { size: ${POSTER_PAGE_SIZE[size]}; margin: 0; }`}</style>
 
-			<div className="poster-controls my-4 mb-8 flex flex-col gap-4">
+			<div className="poster-controls my-4 mbe-8 flex flex-col gap-4">
 				{/* Where am I: the poster page belongs to its subject. */}
 				<Breadcrumb>
 					<BreadcrumbList>

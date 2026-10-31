@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 
+import { settle } from "~/lib/client/settle";
 import { mountTurnstile } from "~/lib/client/turnstile";
 import type { TokenProvider } from "~/lib/client/turnstile";
 import type { Messages } from "~/lib/i18n";
@@ -60,16 +61,20 @@ export function useWriteAction(args: { siteKey: string; m: Messages; failed: str
 		if (submitting || !tokens.current) {
 			return;
 		}
+		const provider = tokens.current;
 		setTaking(true);
 		setLocalNotice(undefined);
-		try {
-			const token = await tokens.current.take();
-			await fetcher.submit({ ...payload, token }, { ...target, encType: "application/json" });
-		} catch {
-			setLocalNotice(args.m.noticeNetworkFailed);
-		} finally {
-			setTaking(false);
-		}
+		await settle(
+			async () => {
+				try {
+					const token = await provider.take();
+					await fetcher.submit({ ...payload, token }, { ...target, encType: "application/json" });
+				} catch {
+					setLocalNotice(args.m.noticeNetworkFailed);
+				}
+			},
+			() => setTaking(false),
+		);
 	}
 
 	return {

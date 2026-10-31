@@ -105,12 +105,12 @@ export default function Edit({ loaderData }: Route.ComponentProps) {
 			<title>{`${m.editTitle} | Negirau`}</title>
 			<meta name="robots" content="noindex" />
 			<h1 className="text-2xl font-semibold">{m.editTitle}</h1>
-			<p className="mt-4">
+			<p className="mbs-4">
 				<Link to={`/${locale}/subjects/${subject.id}`}>{subject.name}</Link>
 			</p>
-			<p className="text-ink-soft mt-2 text-[0.85rem]">{m.editIntro}</p>
+			<p className="text-ink-soft mbs-2 text-[0.85rem]">{m.editIntro}</p>
 
-			<form className="mt-8 flex flex-col gap-6" onSubmit={review}>
+			<form className="mbs-8 flex flex-col gap-6" onSubmit={review}>
 				<label className="flex flex-col gap-1.5">
 					{m.createNameLabel}
 					<Input name="name" required maxLength={SUBJECT_NAME_MAX} defaultValue={subject.name} />
@@ -124,10 +124,10 @@ export default function Edit({ loaderData }: Route.ComponentProps) {
 				</div>
 			</form>
 
-			<section className="border-hairline mt-12 border-t pt-8">
+			<section className="border-hairline mbs-12 border-bs pbs-8">
 				<h2 className="text-lg font-semibold">{m.deleteHeading}</h2>
-				<p className="text-ink-soft mt-2 text-[0.85rem]">{m.deleteBody}</p>
-				<div className="mt-4 flex justify-end">
+				<p className="text-ink-soft mbs-2 text-[0.85rem]">{m.deleteBody}</p>
+				<div className="mbs-4 flex justify-end">
 					<ActionButton
 						icon={Trash2}
 						variant="outline"
@@ -176,7 +176,7 @@ export default function Edit({ loaderData }: Route.ComponentProps) {
 				)}
 			</OverlayDialog>
 
-			<div ref={hostRef} className="fixed inset-e-2 bottom-2" />
+			<div ref={hostRef} className="fixed inset-e-2 inset-be-2" />
 		</>
 	);
 }

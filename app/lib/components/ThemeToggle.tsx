@@ -10,6 +10,9 @@ import { Button } from "~/lib/components/ui/button";
 import { messages } from "~/lib/i18n";
 import type { Locale } from "~/lib/i18n";
 
+// Module level: React Compiler cannot compile an import() expression inside a component yet.
+const loadMenu = () => import("~/lib/components/ThemeToggleMenu");
+
 /** The sun/moon pair — one fixed-size glyph before and after the menu mounts (zero CLS). */
 export function ThemeToggleIcons() {
 	return (
@@ -24,7 +27,7 @@ export function ThemeToggle({ locale }: { locale: Locale }) {
 	const m = messages(locale);
 	const [menu, setMenu] = useState<ComponentType<{ locale: Locale }> | undefined>(undefined);
 	async function engage(): Promise<void> {
-		const module = await import("~/lib/components/ThemeToggleMenu");
+		const module = await loadMenu();
 		// A function value, or useState would call the component as an updater.
 		setMenu(() => module.ThemeToggleMenu);
 	}

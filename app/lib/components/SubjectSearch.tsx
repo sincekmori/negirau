@@ -25,21 +25,21 @@ export function SubjectSearch({ locale }: { locale: Locale }) {
 			<h2>{m.searchHeading}</h2>
 			<Input
 				type="search"
-				className="mt-2"
+				className="mbs-2"
 				placeholder={m.searchPlaceholder}
 				aria-label={m.searchHeading}
 				onChange={(event) => search.onQueryChange(event.target.value)}
 			/>
-			{search.failed && <p className="mt-3">{m.searchFailed}</p>}
+			{search.failed && <p className="mbs-3">{m.searchFailed}</p>}
 			{search.hits !== undefined &&
 				(search.hits.length === 0 ? (
-					<p className="mt-3">
+					<p className="mbs-3">
 						{m.searchNoHits} <Link to={`/${locale}/subjects/new`}>{m.searchNoHitsCta}</Link>
 					</p>
 				) : (
-					<ul className="mt-4">
+					<ul className="mbs-4">
 						{search.hits.map((hit) => (
-							<li key={hit.id} className="border-hairline border-b py-1.5">
+							<li key={hit.id} className="border-hairline border-be py-1.5">
 								<a href={`/${locale}/subjects/${hit.id}`}>{hit.name}</a>
 							</li>
 						))}

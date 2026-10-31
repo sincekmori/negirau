@@ -45,6 +45,13 @@ export function useDebouncedSearch<T>(
 		}
 	}
 
+	function reset(): void {
+		clearTimeout(timer.current);
+		inFlight.current?.abort();
+		setHits(undefined);
+		setFailed(false);
+	}
+
 	function onQueryChange(value: string): void {
 		clearTimeout(timer.current);
 		const query = value.trim();
@@ -58,13 +65,6 @@ export function useDebouncedSearch<T>(
 			return;
 		}
 		timer.current = setTimeout(() => void search(query), debounceMs);
-	}
-
-	function reset(): void {
-		clearTimeout(timer.current);
-		inFlight.current?.abort();
-		setHits(undefined);
-		setFailed(false);
 	}
 
 	return { hits, failed, onQueryChange, reset };

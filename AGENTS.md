@@ -82,7 +82,7 @@ There is no admin UI: the operator works directly on D1 (Cloudflare console or `
 - `workers-og` stays a **dynamic** import inside the OG route; the Cloudflare vite plugin resolves its .wasm modules in the ssr environment (never add `ssr.external` — the plugin rejects it).
 - maplibre-gl v6 loads its map worker from a separate file: `setWorkerUrl` with a `?worker&url` import is mandatory (production 404s without it), the import lives in a `.client.ts` module, and vite.config's `pruneClientWorkerChunks` keeps the re-emitted worker chunk out of the server upload.
 - Workers' HTMLRewriter global `Element` type merges into DOM `Element`: use `appendChild`, not `append`, in client code (see `app/lib/client/turnstile.ts`).
-- vitest runs in the workers pool (`@cloudflare/vitest-pool-workers`, vitest 4 plugin API `cloudflareTest()`); the old `fetchMock` from `cloudflare:test` is gone — stub `fetch` with `vi.stubGlobal`.
+- vitest runs in the workers pool (`@cloudflare/vitest-plugin`, the renamed successor of `@cloudflare/vitest-pool-workers`, plugin API `cloudflareTest()`); the old `fetchMock` from `cloudflare:test` is gone — stub `fetch` with `vi.stubGlobal`.
 - `.dev.vars` ships Cloudflare's public Turnstile _test_ keys (always pass).
   Production keys are Worker secrets, never in the repo.
 - Locale lives in the URL path: pages are served at `/ja/...` and `/en/...` (the `:locale?` param in `app/routes.ts`, validated in the site layout's loader), so caches are purely URL-keyed and hreflang alternates exist.
