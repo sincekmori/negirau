@@ -14,25 +14,29 @@ export function SubjectMap({ lat, lng, label }: { lat: number; lng: number; labe
 			return;
 		}
 		const element = host.current;
-		let disposed = false;
-		let observer: ResizeObserver | undefined;
-		let remove: (() => void) | undefined;
+		const lifetime = new AbortController();
 		void (async () => {
-			const booted = await bootMap(element, { zoom: 14, isDisposed: () => disposed });
+			const booted = await bootMap(element, {
+				zoom: 14,
+				isDisposed: () => lifetime.signal.aborted,
+			});
 			if (!booted) {
 				return;
 			}
 			booted.map.setCenter([lng, lat]);
 			new booted.maplibre.Marker().setLngLat([lng, lat]).addTo(booted.map);
-			observer = new ResizeObserver(() => booted.map.resize());
+			const observer = new ResizeObserver(() => booted.map.resize());
 			observer.observe(element);
-			remove = () => booted.map.remove();
+			lifetime.signal.addEventListener(
+				"abort",
+				() => {
+					observer.disconnect();
+					booted.map.remove();
+				},
+				{ once: true },
+			);
 		})();
-		return () => {
-			disposed = true;
-			observer?.disconnect();
-			remove?.();
-		};
+		return () => lifetime.abort();
 		// `visible` flips once and starts the boot; a coordinate change (client
 		// navigation to another subject) disposes and boots the new spot.
 	}, [lat, lng, visible]);
