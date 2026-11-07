@@ -124,7 +124,7 @@ There is no admin UI: the operator works directly on D1 (Cloudflare console or `
   1.0.0 is only ever taken deliberately, with a `Release-As: 1.0.0` commit.
   Client↔spec compatibility is guaranteed by the contract tests (operation coverage both directions), not by comparing version numbers.
   Merge release PRs promptly after contract changes: the deployed spec serves new content under the old number until the merge.
-- Dependency updates are Dependabot's (`.github/dependabot.yml`): one grouped PR per ecosystem per week (the bun root, the two pnpm packages, uv, GitHub Actions) behind a 7-day cooldown that mirrors the `minimumReleaseAge` in `bunfig.toml` and both `pnpm-workspace.yaml` files — change one, change all three.
+- Dependency updates are Dependabot's (`.github/dependabot.yml`): one grouped PR per ecosystem per week (the bun root, the two pnpm packages, uv, GitHub Actions) behind a 1-day cooldown that mirrors the `minimumReleaseAge` in `bunfig.toml` — change one, change both.
   The PRs land as `build(deps)` / `ci` commits, which release-please hides, so a bump never releases on its own.
   oxfmt and zod stay outside the group on purpose: oxfmt formats the generated SKILL.md and zod emits the spec's JSON Schema, so either bump can move the committed `skills/negirau/` snapshot, which Dependabot cannot regenerate — run `bun run generate:skill` on those PRs and commit the result (Dependabot stops rebasing a PR once someone else pushes to it, which is fine).
   client-py is a published library, so its entry pins `versioning-strategy: lockfile-only` (GitHub rejects `widen` for uv) and pyproject's lower bounds stay where they are.

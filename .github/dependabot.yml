@@ -1,6 +1,6 @@
 # Weekly dependency PRs for every ecosystem in the repo, one grouped PR each.
-# The 7-day cooldown mirrors the install-time minimumReleaseAge in bunfig.toml
-# and in both packages/*/pnpm-workspace.yaml — change one, change all three.
+# The 1-day cooldown mirrors the install-time minimumReleaseAge in bunfig.toml;
+# change one, change both.
 # Prefixes are the commit types release-please hides (build, ci), so a bump
 # never releases on its own; it ships with the next feat/fix (AGENTS.md).
 version: 2
@@ -13,7 +13,7 @@ updates:
       actions:
         patterns: ["*"]
     cooldown:
-      default-days: 7
+      default-days: 1
     commit-message:
       prefix: "ci"
 
@@ -30,7 +30,7 @@ updates:
         # so the weekly PR stays green; run `bun run generate:skill` on theirs.
         exclude-patterns: ["oxfmt", "zod"]
     cooldown:
-      default-days: 7
+      default-days: 1
     commit-message:
       prefix: "build"
       include: "scope"
@@ -43,7 +43,7 @@ updates:
       npm:
         patterns: ["*"]
     cooldown:
-      default-days: 7
+      default-days: 1
     commit-message:
       prefix: "build"
       include: "scope"
@@ -56,7 +56,7 @@ updates:
       npm:
         patterns: ["*"]
     cooldown:
-      default-days: 7
+      default-days: 1
     commit-message:
       prefix: "build"
       include: "scope"
@@ -69,7 +69,7 @@ updates:
       python:
         patterns: ["*"]
     cooldown:
-      default-days: 7
+      default-days: 1
     # A published library: never rewrite pyproject's lower bounds, only move
     # uv.lock. GitHub rejects "widen" for uv (allowed: lockfile-only, auto,
     # increase, increase-if-necessary); transitive pins only move when a direct
