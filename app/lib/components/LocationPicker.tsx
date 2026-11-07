@@ -226,10 +226,9 @@ export function LocationPicker({
 			return;
 		}
 		const host = mapHost.current;
-		let disposed = false;
-		let observer: ResizeObserver | undefined;
+		const lifetime = new AbortController();
 		void (async () => {
-			const booted = await bootMap(host, { zoom: 9, isDisposed: () => disposed });
+			const booted = await bootMap(host, { zoom: 9, isDisposed: () => lifetime.signal.aborted });
 			if (!booted) {
 				return;
 			}
@@ -240,13 +239,13 @@ export function LocationPicker({
 			});
 			// The map can boot before its stylesheet lays the container out;
 			// track the real size instead of trusting the initial measure.
-			observer = new ResizeObserver(() => booted.map.resize());
+			const observer = new ResizeObserver(() => booted.map.resize());
 			observer.observe(host);
+			lifetime.signal.addEventListener("abort", () => observer.disconnect(), { once: true });
 			showChosenPin();
 		})();
 		return () => {
-			disposed = true;
-			observer?.disconnect();
+			lifetime.abort();
 			map.current?.remove();
 			map.current = undefined;
 			marker.current = undefined;
