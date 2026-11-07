@@ -11,6 +11,9 @@ name: Release
 on:
   push:
     branches: [main]
+  # Registers the current version in the MCP Registry only, for a release whose
+  # npm publish landed but whose registration did not.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,6 +24,7 @@ concurrency:
 
 jobs:
   release-please:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -93,8 +97,36 @@ jobs:
         working-directory: packages/mcp-server
       - run: npm publish
         working-directory: packages/mcp-server
-      # MCP Registry metadata (server.json; versions kept in sync by release-please
-      # extra-files). Ownership is proven by mcpName in package.json + GitHub OIDC.
+
+  # MCP Registry metadata (server.json; versions kept in sync by release-please
+  # extra-files). Ownership is proven by mcpName in package.json + GitHub OIDC.
+  # A job of its own so a failed registration re-runs without republishing.
+  register-mcp-server:
+    needs: publish-mcp-server
+    if: always() && (needs.publish-mcp-server.result == 'success' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write # MCP Registry GitHub OIDC login
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # npm processes a publish asynchronously, and the registry rejects a
+      # version npm does not serve yet.
+      - name: Wait for npm to serve this version
+        working-directory: packages/mcp-server
+        run: |
+          version="$(jq -r .version package.json)"
+          for _ in $(seq 1 60); do
+            if curl -fs -o /dev/null "https://registry.npmjs.org/negirau-mcp/${version}"; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "negirau-mcp@${version} is still not on npm after 10 minutes" >&2
+          exit 1
       - name: Install mcp-publisher
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
