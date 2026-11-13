@@ -60,7 +60,7 @@
     "knip": "^6.44.1",
     "lucide-react": "^1.70.0",
     "next-themes": "^0.4.6",
-    "oxfmt": "^0.76.0",
+    "oxfmt": "^0.78.0",
     "oxlint": "^1.91.0",
     "oxlint-tailwindcss": "^1.17.1",
     "playwright": "^1.65.0",
